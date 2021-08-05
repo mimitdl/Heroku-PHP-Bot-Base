@@ -5,6 +5,7 @@
 @source_home
 https://t.me/source_home
 */
+echo "ok";
 include "jdf.php";
 ob_start();
 error_reporting(0);
