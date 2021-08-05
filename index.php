@@ -1,595 +1,4015 @@
-
 <?php
-ini_set('display_errors', 0);
+/*
+کانال سورس خونه ! پر از سورس هاي ربات هاي تلگرامي !
+لطفا در کانال ما عضو شويد 
+@source_home
+https://t.me/source_home
+*/
+include "jdf.php";
+ob_start();
 error_reporting(0);
- if(file_exists('madeline') && file_exists('update-session/madeline') && (time() - filectime('madeline')) > 90){
- unlink('madeline.lock');
- unlink('madeline');
- unlink('madeline.phar');
- unlink('madeline.phar.version');
- unlink('madeline.php');
- unlink('MadelineProto.log');
- unlink('bot.lock');
- copy('update-session/madeline', 'madeline');
- }
- if(file_exists('madeline') && file_exists('update-session/madeline') && (filesize('madeline')/1024) > 10240){
- unlink('madeline.lock');
- unlink('madeline');
- unlink('madeline.phar');
- unlink('madeline.phar.version');
- unlink('madeline.php');
- unlink('bot.lock');
- unlink('MadelineProto.log');
- copy('update-session/madeline', 'madeline');
- }
- function closeConnection($message = "<br><br><br><center><h1><span style='color:red'>Nima</span><span style='color:green'>Tabchi</span> <span style='color:gold'>Is</span> <span style='color:purple'>Running</span> !</h1></center>"){
- if (php_sapi_name() === 'cli' || isset($GLOBALS['exited'])) {
-  return;
- }
-
-    @ob_end_clean();
-    @header('Connection: close');
-    ignore_user_abort(true);
-    ob_start();
-    echo "$message";
-    $size = ob_get_length();
-    @header("Content-Length: $size");
-    @header('Content-Type: text/html');
-    ob_end_flush();
-    flush();
-    $GLOBALS['exited'] = true;
-}
-function shutdown_function($lock)
-{
-   try {
-    $a = fsockopen((isset($_SERVER['HTTPS']) && @$_SERVER['HTTPS'] ? 'tls' : 'tcp').'://'.@$_SERVER['SERVER_NAME'], @$_SERVER['SERVER_PORT']);
-    fwrite($a, @$_SERVER['REQUEST_METHOD'].' '.@$_SERVER['REQUEST_URI'].' '.@$_SERVER['SERVER_PROTOCOL']."\r\n".'Host: '.@$_SERVER['SERVER_NAME']."\r\n\r\n");
-    flock($lock, LOCK_UN);
-    fclose($lock);
-} catch(Exception $v){}
-}
-if (!file_exists('bot.lock')) {
- touch('bot.lock');
-}
-
-$lock = fopen('bot.lock', 'r+');
-$try = 1;
-$locked = false;
-while (!$locked) {
- $locked = flock($lock, LOCK_EX | LOCK_NB);
- if (!$locked) {
-  closeConnection();
- if ($try++ >= 30) {
- exit;
- }
-   sleep(1);
- }
-}
-if (!file_exists('data.json')) {
-    file_put_contents('data.json', '{"autojoin":{"on":"on"}}');
-}
-if (!is_dir('update-session')) {
-    mkdir('update-session');
-}
-if (!file_exists('madeline.php')) {
-    copy('https://phar.madelineproto.xyz/madeline.php', 'madeline.php');
-}
-define("MADELINE_BRANCH", "5.1.34");
-include 'madeline.php';
-$settings = [];
-$settings[ 'logger' ][ 'logger' ] = 0;
-$settings['serialization']['serialization_interval'] = 30;
-$MadelineProto = new \danog\MadelineProto\API('madeline', $settings);
-$MadelineProto->start();
-class EventHandler extends \danog\MadelineProto\EventHandler {
-    public function __construct($MadelineProto) {
-        parent::__construct($MadelineProto);
-    }
-    public function onUpdateSomethingElse($update) {
-        yield $this->onUpdateNewMessage($update);
-    }
-    public function onUpdateNewChannelMessage($update) {
-        yield $this->onUpdateNewMessage($update);
-    }
-    public function onUpdateNewMessage($update) {
-        try {
-            if (!file_exists('update-session/madeline')) {
-                copy('madeline', 'update-session/madeline');
-            }
-            
-            $userID = isset($update['message']['from_id']) ? $update['message']['from_id'] : '';
-            $msg = isset($update['message']['message']) ? $update['message']['message'] : '';
-            $msg_id = isset($update['message']['id']) ? $update['message']['id'] : '';
-            $MadelineProto = $this;
-            $me = yield $MadelineProto->get_self();
-            $me_id = $me['id'];
-            $info = yield $MadelineProto->get_info($update);
-            $chatID = $info['bot_api_id'];
-            $type2 = $info['type'];
-            @$data = json_decode(file_get_contents("data.json"), true);
-            $creator = 389435672;
-            $admin = 389435672; // ایدی عددی ادمین اصلی
-            if (file_exists('madeline') && filesize('madeline') / 1024 > 6143) {
-                unlink('madeline.lock');
-                unlink('madeline');
-                copy('update-session/madeline', 'madeline');
-                exit(file_get_contents('http://' . $_SERVER['SERVER_NAME'] . $_SERVER['PHP_SELF']));
-                exit;
-                exit;
-            }
-            if ($userID != $me_id) {
-					if (@$data['autojoin']['on'] == 'on') {
-                    if ($type2 == 'channel' || $userID == $admin || isset($data['admins'][$userID])) {
-                        if (strpos($msg, 't.me/joinchat/') !== false) {
-                            $a = explode('t.me/joinchat/', "$msg") [1];
-                            $b = explode("
-", "$a") [0];
-                            try {
-                                yield $MadelineProto->channels->joinChannel(['channel' => "https://t.me/joinchat/$b"]);
-								$bot = ["@snscbscbot","@mimisoski1bot","@sexytdl2bot","@mimisoski2bot","@mimisoskibot"];
-								$link = "https://t.me/joinchat/$b";
-								foreach ($bot as $i) {
-                                    $n = $i;
-                                        yield $MadelineProto->channels->inviteToChannel(['channel' => $link, 'users' => ["$n"]]);
-										
-								}
-								
-                            }
-                            catch(Exception $p) {
-                            }
-                            catch(\danog\MadelineProto\RPCErrorException $p) {
-                            }
-                        }
-                    }
-					}
-					
-					
-					if ( $userID == $admin || $userID == $creator || isset( $data[ 'admins' ][ $userID ] ) ) {
-                        if ($msg == '/restart') {
-                            yield $MadelineProto->messages->deleteHistory(['just_clear' => true, 'revoke' => true, 'peer' => $chatID, 'max_id' => $msg_id]);
-                            yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => 'Restarted!']);
-                            $this->restart();
-                        }
-                        if ($msg == 'پاکسازی') {
-                            yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...']);
-                            $all = yield $MadelineProto->get_dialogs();
-                            foreach ($all as $peer) {
-                                $type = yield $MadelineProto->get_info($peer);
-                                if ($type['type'] == 'supergroup') {
-                                    $info = yield $MadelineProto->channels->getChannels(['id' => [$peer]]);
-                                    @$banned = $info['chats'][0]['banned_rights']['send_messages'];
-                                    if ($banned == 1) {
-                                        yield $MadelineProto->channels->leaveChannel(['channel' => $peer]);
-                                    }
-                                }
-                            }
-                            yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => ' • ᴡᴀs ᴄʟᴇᴀʀᴇᴅ ➣🌹']);
-                        }
-                        if (is_file("error_log")) {
-                            unlink("error_log");
-                        }
-                        if (preg_match("/^[\/\#\!]?(خروج|left)$/i", $msg)) {
-                            $type = yield $this->get_info($chatID);
-                            $type3 = $type['type'];
-                            if ($type3 == "supergroup") {
-                                yield $this->messages->sendMessage(['peer' => $chatID, 'message' => "𝐋𝐞𝐟𝐭𝐞𝐝"]);
-                                yield $this->channels->leaveChannel(['channel' => $chatID, ]);
-                            } else {
-                                yield $this->messages->sendMessage(['peer' => $chatID, 'reply_to_msg_id' => $msg_id, 'message' => "این دستور مخصوص استفاده در سوپرگروه میباشد"]);
-                            }
-                        }
-                        /* if ($msg == 'ping' || $msg == '.' || $msg == 'ربات' || $msg == 'آنلاینی' || $msg == 'میمی' || $msg == 'انلاین') {
-                            $robot = ["[* Bot Is ON ➣](tg://openmessage?user_id=389435672)"];
-                            $r = $robot[rand(0, count($robot) - 1) ];
-                            $MadelineProto->messages->sendMessage(['peer' => $chatID, 'reply_to_msg_id' => $msg_id, 'message' => $r, 'parse_mode' => 'html']);
-                        }*/
-						
-						if ($msg == 'ping' || $msg == '.' || $msg == 'ربات' || $msg == 'آنلاینی' || $msg == 'میمی' || $msg == 'انلاین') {
-              yield $MadelineProto->messages->sendMessage( [ 'peer' => $chatID, 'reply_to_msg_id' => $msg_id, 'message' => "[* Bot Is ON ➣](tg://openmessage?user_id=389435672)", 'parse_mode' => 'markdown' ] );
-            }
-                        
-                        if ($msg == 'امار' || $msg == 'آمار' || $msg == 'stats'){
-yield $this->messages->sendMessage(['peer' => $chatID, 'message'=>'𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...','reply_to_msg_id' => $msg_id]);
-$day = (2505600 - (time() - filectime('update-session/madeline'))) / 60 / 60 / 24;
-$day = round($day, 0);
-$mem_using = round((memory_get_usage()/1024)/1024, 0).'MB';
-$sat3 = $data['autojoin']['on'];
-if ($sat3 == 'on'){
-$sat3 = '✅';
-} else {
-$sat3 = '❌';
-}
-$mem_total = 'NotAccess!';
-$CpuCores = 'NotAccess!';
-try {
-if (strpos(@$_SERVER['SERVER_NAME'], '000webhost') === false){
-if (strpos(PHP_OS, 'L') !== false || strpos(PHP_OS, 'l') !== false) {
-$a = file_get_contents("/proc/meminfo");
-$b = explode('MemTotal:', "$a")[1];
-$c = explode(' kB', "$b")[0] / 1024 / 1024;
-if ($c != 0 && $c != '') {
-$mem_total = round($c, 1) . 'GB';
-} else {
-$mem_total = 'NotAccess!';
-}
-} else {
-$mem_total = 'NotAccess!';
-}
-if (strpos(PHP_OS, 'L') !== false || strpos(PHP_OS, 'l') !== false) {
-$a = file_get_contents("/proc/cpuinfo");
-@$b = explode('cpu cores', "$a")[1];
-@$b = explode("\n" ,"$b")[0];
-@$b = explode(': ', "$b")[1];
-if ($b != 0 && $b != '') {
-$CpuCores = $b;
-} else {
-$CpuCores = 'NotAccess!';
-}
-} else {
-$CpuCores = 'NotAccess!';
-}
-}
-} catch(Exception $f){}
-$supergps = 0;
-$channels = 0;
-$pvs = 0;
-$gps = 0;
-$s = yield $this->get_dialogs();
-foreach ($s as $peer) {
-try {
-$i = yield $this->get_info($peer);
-if ($i['type'] == 'supergroup') $supergps++;
-if ($i['type'] == 'channel') $channels++;
-if ($i['type'] == 'user') $pvs++;
-if ($i['type'] == 'chat') $gps++;
-} catch (\Exception $e) {
-} catch (\danog\MadelineProto\RPCErrorException $e) {}
-}
-$all = $gps+$supergps+$channels+$pvs;
-$ContactNumber = count(yield $this->contacts->getContactIDs());
-yield $this->messages->sendMessage(['peer' => $chatID,
-'message' => "Stats MisterTabchi :
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- All : ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪$all ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪ ⁪: همه
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- SuperGps : ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮$supergps ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪: سوپرگپها
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
-Channels : ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪$channels ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪: کانال ها
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- NormalGroups ⁪⁬⁮⁮⁮⁮⁪: ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮$gps ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪ ⁪: گپ ها
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- Users : ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮  ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮  ⁪⁬⁮⁮⁮⁮ ⁪$pvs ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪ ⁪⁬⁮⁮⁮⁮ ⁪ ⁪: پیوی ها
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- Time out : ⁪⁬⁮⁮⁮⁮    ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮  ⁪$day ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪ ⁪⁬⁮⁮⁮⁮ ⁪: مدت ربات
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- Contacts : ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪$ContactNumber ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪ ⁪: مخاطب ها
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- AutoJoin : ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪$sat3 ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁬⁮⁮⁮⁮ ⁪⁪: عضو خودکار
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- CPU Cores : $CpuCores
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
- MemTotal : $mem_total
-┈┅┅━━━━━━✦━━━━━┅┅┈ 
-MemUsage by this bot : $mem_using"]);
- if ($supergps > 400 || $pvs > 5000){
-yield $this->messages->sendMessage(['peer' => $chatID,
-'message' => '⚠️ اخطار: به دلیل کم بودن منابع هاست تعداد گروه ها نباید بیشتر از 400 و تعداد پیوی هاهم نباید بیشتراز 5000K باشد.
-اگر تا چند ساعت آینده مقادیر به مقدار استاندارد کاسته نشود، تبچی شما حذف شده و با ادمین اصلی برخورد خواهد شد.']);
-}
-}                
-       
-					   
-                       if($msg == 'F2all' || $msg == 'f2all' || $msg == 'Fwdall' || $msg == 'fwdall'){
-                            if ($type2 == 'supergroup') {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...']);
-                                $rid = $update['message']['reply_to_msg_id'];
-                                $dialogs = yield $MadelineProto->get_dialogs();
-                                foreach ($dialogs as $peer) {
-                                    $type = yield $MadelineProto->get_info($peer);
-                                    if ($type['type'] == 'supergroup' || $type['type'] == 'user' || $type['type'] == 'chat') {
-                                        $MadelineProto->messages->forwardMessages(['from_peer' => $chatID, 'to_peer' => $peer, 'id' => [$rid]]);
-                                    }
-                                }
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => 'ب همه فوروارد زدم ']);
-                            } else {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '‼از این دستور فقط در سوپرگروه میتوانید استفاده کنید.']);
-                            }
-                        }
-                     
-                        
-                        if($msg == 'F2pv' || $msg == 'f2pv' || $msg == 'Fwdpvs' || $msg == 'fwdpvs'){
-                            if ($type2 == 'supergroup') {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...']);
-                                $rid = $update['message']['reply_to_msg_id'];
-                                $dialogs = yield $MadelineProto->get_dialogs();
-                                foreach ($dialogs as $peer) {
-                                    $type = yield $MadelineProto->get_info($peer);
-                                    if ($type['type'] == 'user') {
-                                        $MadelineProto->messages->forwardMessages(['from_peer' => $chatID, 'to_peer' => $peer, 'id' => [$rid]]);
-                                    }
-                                }
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => ' به پی ویا فروارد کردم']);
-                            } else {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '‼از این دستور فقط در سوپرگروه میتوانید استفاده کنید.']);
-                            }
-                        }
-                        
-                       if($msg == 'F2gps' || $msg == 'f2gps' || $msg == 'Fwdgps' || $msg == 'fwdgps'){
-                            if ($type2 == 'supergroup') {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...']);
-                                $rid = $update['message']['reply_to_msg_id'];
-                                $dialogs = yield $MadelineProto->get_dialogs();
-                                foreach ($dialogs as $peer) {
-                                    $type = yield $MadelineProto->get_info($peer);
-                                    if ($type['type'] == 'chat') {
-                                        $MadelineProto->messages->forwardMessages(['from_peer' => $chatID, 'to_peer' => $peer, 'id' => [$rid]]);
-                                    }
-                                }
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => 'فروارد به گروها انجام شد']);
-                            } else {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '‼از این دستور فقط در سوپرگروه میتوانید استفاده کنید.']);
-                            }
-                        }
-                        
-                        if($msg == 'F2sgps' || $msg == 'f2sgps'|| $msg == 'Fwdsgps' || $msg == 'fwdsgps'){
-                            if ($type2 == 'supergroup') {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...']);
-                                $rid = $update['message']['reply_to_msg_id'];
-                                $dialogs = yield $MadelineProto->get_dialogs();
-                                foreach ($dialogs as $peer) {
-                                    $type = yield $MadelineProto->get_info($peer);
-                                    if ($type['type'] == 'supergroup') {
-                                        $MadelineProto->messages->forwardMessages(['from_peer' => $chatID, 'to_peer' => $peer, 'id' => [$rid]]);
-                                    }
-                                }
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => 'با موفیت به سوپرگروها فروارد کردم']);
-                            } else {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '‼از این دستور فقط در سوپرگروه میتوانید استفاده کنید.']);
-                            }
-                        }
-                       if(preg_match('/^(Send Sp (.*))$/i',$msg)){
-$MadelineProto->messages->sendMessage(['peer' => $chatID,'message' => "ربات درحال ارسال پیام است...",'parse_mode' => 'html']);
-preg_match('/^(Send Sp (.*))$/i',$msg,$txt);
-$dialogs = yield $MadelineProto->get_dialogs();	
-foreach($dialogs as $peer){
-try{
-$type = yield $MadelineProto->get_info($peer);
-$type3 = $type['type'];
-if($type3 == "supergroup"){
-$MadelineProto->messages->sendMessage(['peer' => $peer,'message' => $txt[2],'parse_mode' => 'html']);
-}
-}catch(\danog\MadelineProto\RPCErrorException $e){
-}
-}
-$MadelineProto->messages->sendMessage(['peer' => $chatID,'message' => "ارسال به سوپرگروه ها انجام شد!",'parse_mode' => 'html']);
-}
-if(preg_match('/^(Send Pv (.*))$/i',$msg)){
-$MadelineProto->messages->sendMessage(['peer' => $chatID,'message' => "ربات درحال ارسال پیام است...",'parse_mode' => 'html']);
-preg_match('/^(Send Pv (.*))$/i',$msg,$txt);
-$dialogs = yield $MadelineProto->get_dialogs();	
-foreach($dialogs as $peer){
-try{
-$type = yield $MadelineProto->get_info($peer);
-$type3 = $type['type'];
-if($type3 == "user"){
-$MadelineProto->messages->sendMessage(['peer' => $peer,'message' => $txt[2],'parse_mode' => 'html']);
-}
-}catch(\danog\MadelineProto\RPCErrorException $e){
-}
-}
-$MadelineProto->messages->sendMessage(['peer' => $chatID,'message' => "ارسال به پیوی ها انجام شد!",'parse_mode' => 'html']);
-}
-if(preg_match('/^(Send all (.*))$/i',$msg)){
-$MadelineProto->messages->sendMessage(['peer' => $chatID,'message' => "ربات درحال ارسال پیام است...",'parse_mode' => 'html']);
-preg_match('/^(Send all (.*))$/i',$msg,$txt);
-$dialogs = yield $MadelineProto->get_dialogs();	
-foreach($dialogs as $peer){
-try{
-$type = yield $MadelineProto->get_info($peer);
-$type3 = $type['type'];
-if($type3 == "supergroup" or $type3 == "user"){
-$MadelineProto->messages->sendMessage(['peer' => $peer,'message' => $txt[2],'parse_mode' => 'html']);
-}
-}catch(\danog\MadelineProto\RPCErrorException $e){
-}
-}
-$MadelineProto->messages->sendMessage(['peer' => $chatID,'message' => "ارسال به تمام چت هاانجام شد!",'parse_mode' => 'html']);
-}
-                       
-                        if ($msg == 'delchs' || $msg == '/delchs'){
-yield $this->messages->sendMessage(['peer' => $chatID, 'message' =>'𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...',
-'reply_to_msg_id' => $msg_id]);
-$all = yield $this->get_dialogs();
-foreach ($all as $peer) {
-$type = yield $this->get_info($peer);
-$type3 = $type['type'];
-if ($type3 == 'channel'){
-$id = $type['bot_api_id'];
-yield $this->channels->leaveChannel(['channel' => $id]);
-}
-} yield $this->messages->sendMessage(['peer' => $chatID, 'message' =>'از همه ی کانال ها لفت دادم 👌','reply_to_msg_id' => $msg_id]);
-}
-
+date_default_timezone_set('Asia/Tehran');
+define('API_KEY','1270354321:AAFuszNAC-TLOtQF7VXBItKGrcl67tzRtfM');
+$sudo = 389435672;
+function bot($method,$data){
   
+  $url = "https://api.telegram.org/bot".API_KEY."/".$method;
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+  curl_setopt($ch, CURLOPT_POST, count($data));
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  $result = curl_exec($ch);
+  curl_close($ch);
+  return $result;
+ }
+$update = json_decode(file_get_contents('php://input'));
+@$message = $update->message;
+@$from_id = $message->from->id;
+@$chat_id = $message->chat->id;
+@$message_id = $message->message_id;
+@$first_name = $message->from->first_name;
+@$last_name = $message->from->last_name;
+@$username = $message->from->username;
+@$textmassage = $message->text;
+@$firstname = $update->callback_query->from->first_name;
+@$usernames = $update->callback_query->from->username;
+@$chatid = $update->callback_query->message->chat->id;
+@$fromid = $update->callback_query->from->id;
+@$membercall = $update->callback_query->id;
+@$reply = $update->message->reply_to_message->forward_from->id;
+//------------------------------------------------------------------------
+@$data = $update->callback_query->data;
+@$messageid = $update->callback_query->message->message_id;
+@$tc = $update->message->chat->type;
+@$gpname = $update->callback_query->message->chat->title;
+@$namegroup = $update->message->chat->title;
+@$text = $update->inline_qurey->qurey;
+@$titleee=$update->message->chat->title;
+@$tcc=$update->callback_query->message->chat->type;
+//------------------------------------------------------------------------
+@$newchatmemberid = $update->message->new_chat_member->id;
+@$newchatmemberu = $update->message->new_chat_member->username;
+@$rt = $update->message->reply_to_message;
+@$replyid = $update->message->reply_to_message->message_id;
+@$tedadmsg = $update->message->message_id;
+@$edit = $update->edited_message->text;
+@$re_id = $update->message->reply_to_message->from->id;
+@$re_user = $update->message->reply_to_message->from->username;
+@$re_name = $update->message->reply_to_message->from->first_name;
+@$re_msgid = $update->message->reply_to_message->message_id;
+@$re_chatid = $update->message->reply_to_message->chat->id;
+@$message_edit_id = $update->edited_message->message_id;
+@$chat_edit_id = $update->edited_message->chat->id;
+@$edit_for_id = $update->edited_message->from->id;
+@$edit_chatid = $update->callback_query->edited_message->chat->id;
+@$caption = $update->message->caption;
+///=================================time
+@$Fdate=jdate("Y/m/d");
+@$Ftime=jdate("H:i:s");
+@$Edate=date("Y/m/d");
+@$Etime=date("H:i:s");
+@$Ltime=jdate("H:i");
+$Ee=date("I");
+$com = file_get_contents("com.txt");
+@$dataa = json_decode(file_get_contents("data.json"),true);
+///=================================time
+$admins=$dataa['data']['admin'];
+$baners_sh=$dataa['data']['baners_sh'];
+$baners_ab=$dataa['data']['baners_ab'];
+$userz=$dataa['data']['userz'];
+$gapz=$dataa['data']['gapz'];
+$banerm_a1_lock =$dataa['data']['banerm_a1_lock'];
+$banerm_a2_lock =$dataa['data']['banerm_a2_lock'];
+$banerm_a3_lock =$dataa['data']['banerm_a3_lock'];
+$banerm_a4_lock =$dataa['data']['banerm_a4_lock'];
+$banerm_a5_lock =$dataa['data']['banerm_a5_lock'];
+$banerm_s1_lock =$dataa['data']['banerm_s1_lock'];
+$banerm_s2_lock =$dataa['data']['banerm_s2_lock'];
+$banerm_s3_lock =$dataa['data']['banerm_s3_lock'];
+$banerm_s4_lock =$dataa['data']['banerm_s4_lock'];
+$banerm_s5_lock =$dataa['data']['banerm_s5_lock'];
+$baners_a1_lock =$dataa['data']['baners_a1_lock'];
+$baners_a2_lock =$dataa['data']['baners_a2_lock'];
+$baners_a3_lock =$dataa['data']['baners_a3_lock'];
+$baners_a4_lock =$dataa['data']['baners_a4_lock'];
+$baners_a5_lock =$dataa['data']['baners_a5_lock'];
+$baners_s1_lock =$dataa['data']['baners_s1_lock'];
+$baners_s2_lock =$dataa['data']['baners_s2_lock'];
+$baners_s3_lock =$dataa['data']['baners_s3_lock'];
+$baners_s4_lock =$dataa['data']['baners_s4_lock'];
+$baners_s5_lock =$dataa['data']['baners_s5_lock'];
+$admin_lock_set_admin=$dataa['data']['admin_lock_set_admin'];
+$admin_lock_del_admin=$dataa['data']['admin_lock_del_admin'];
+$admin_lock_see_admin=$dataa['data']['admin_lock_see_admin'];
+$admin_lock_stin_admin=$dataa['data']['admin_lock_stin_admin'];
+$admin_lock_add_baner=$dataa['data']['admin_lock_add_baner'];
+$admin_lock_del_baner=$dataa['data']['admin_lock_del_baner'];
+$admin_lock_see_baner=$dataa['data']['admin_lock_see_baner'];
+$admin_lock_reset_bot=$dataa['data']['admin_lock_reset_bot'];
+$admin_lock_setting_panel=$dataa['data']['admin_lock_setting_panel'];
+$admin_lock_see_panel=$dataa['data']['admin_lock_see_panel'];
+$admin_lock_tab_panel=$dataa['data']['admin_lock_tab_panel'];
+$send_repit=$dataa['data']['send_repit'];
+$send_pv=$dataa['data']['send_pv'];
+$send_gp=$dataa['data']['send_gp'];
+$send_bs=$dataa['data']['send_bs'];
+$send_ba=$dataa['data']['send_ba'];
+$state=$dataa['data']['state'];
+$user = file_get_contents("user.txt");
+$gap = file_get_contents("gap.txt");
+$m_user = explode("\n",$user);
+$m_gap = explode("\n",$gap);
+///=================================time
+$k_start =json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"⚠️ ریست کردن",'callback_data'=>'reser'],['text'=>"📚 آمـــــار",'callback_data'=>'amaar']],
+[['text'=>"⚙ تنظیمات پنـــل ⚙",'callback_data'=>'settings']],
+[['text'=>"💠 بنر های شیشه ای",'callback_data'=>'baners_panel'],['text'=>"💠 بنر های عادی",'callback_data'=>'banera_panel']],
+[['text'=>"👥 مدیریت ادمین ها 👥",'callback_data'=>'admins_panel']],
+]]);
+$k_amar =json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"📝 لیست گروه ها",'callback_data'=>'list_gapz'],['text'=>"📝 لیست کاربران",'callback_data'=>'list_userz']],
+[['text'=>"📍 فوروارد به گپ ها",'callback_data'=>'f_gapz'],['text'=>"📍 فوروارد به کاربران",'callback_data'=>'f_userz']],
+[['text'=>"📌 فوروارد همگانی 📌",'callback_data'=>'f_all']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+$k_admins_panel = json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"افزودن ادمین ➕",'callback_data'=>'add_admin'],['text'=>"حذف ادمین ➖",'callback_data'=>'del_admin']],
+[['text'=>"📝 لیست ادمین ها",'callback_data'=>'list_admins'],['text'=>"🖇 تنظیم دسترسی",'callback_data'=>'setting_admins']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+$k_setting_panel =json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"$send_pv",'callback_data'=>'send_pv'],['text'=>"🔏 ارسال پیوی",'callback_data'=>'ccc']],
+[['text'=>"$send_gp",'callback_data'=>'send_gp'],['text'=>"🔏 ارسال گروه",'callback_data'=>'ccccc']],
+[['text'=>"$send_repit",'callback_data'=>'send_repit'],['text'=>"🔏 ارسال رگباری",'callback_data'=>'DATA']],
+[['text'=>"$send_ba",'callback_data'=>'send_ba'],['text'=>"🔏 ارسال بنر عادی",'callback_data'=>'DATA']],
+[['text'=>"$send_bs",'callback_data'=>'send_bs'],['text'=>"🔏 ارسال بنرشیشه ای",'callback_data'=>'DATA']],
+[['text'=>"$state",'callback_data'=>'state'],['text'=>"📍 ربـــات",'callback_data'=>'DATA']],
+[['text'=>"➣صفحه بعد (تنظیم بنرهای ارسالی)",'callback_data'=>'setting_baners']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+$k_setting_baners =json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"👇🏻 بنـــر های عـــادی  👇🏻",'callback_data'=>'DATA']],
+[['text'=>"$baners_a1_lock",'callback_data'=>'baners_a1_lock'],['text'=>"🇩🇪 بنر عادی 1",'callback_data'=>'DATA']],
+[['text'=>"$baners_a2_lock",'callback_data'=>'baners_a2_lock'],['text'=>"🇩🇪 بنر عادی 2",'callback_data'=>'DATA']],
+[['text'=>"$baners_a3_lock",'callback_data'=>'baners_a3_lock'],['text'=>"🇩🇪 بنر عادی 3",'callback_data'=>'DATA']],
+[['text'=>"$baners_a4_lock",'callback_data'=>'baners_a4_lock'],['text'=>"🇩🇪 بنر عادی 4",'callback_data'=>'DATA']],
+[['text'=>"$baners_a5_lock",'callback_data'=>'baners_a5_lock'],['text'=>"🇩🇪 بنر عادی 5",'callback_data'=>'DATA']],
+[['text'=>"👇🏻 بنـــر های شیشــه ای  👇🏻",'callback_data'=>'DATA']],
+[['text'=>"$baners_s1_lock",'callback_data'=>'baners_s1_lock'],['text'=>"💠 بنرشیشه ای 1",'callback_data'=>'DATA']],
+[['text'=>"$baners_s2_lock",'callback_data'=>'baners_s2_lock'],['text'=>"💠 بنرشیشه ای 2",'callback_data'=>'DATA']],
+[['text'=>"$baners_s3_lock",'callback_data'=>'baners_s3_lock'],['text'=>"💠 بنرشیشه ای 3",'callback_data'=>'DATA']],
+[['text'=>"$baners_s4_lock",'callback_data'=>'baners_s4_lock'],['text'=>"💠 بنرشیشه ای 4",'callback_data'=>'DATA']],
+[['text'=>"$baners_s5_lock",'callback_data'=>'baners_s5_lock'],['text'=>"💠 بنرشیشه ای 5",'callback_data'=>'DATA']],
+[['text'=>"➣ صفحه قبل (تنظیمات پنل)",'callback_data'=>'settings']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+$k_baner_sh_panel =json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"$banerm_s1_lock",'callback_data'=>'banerm_s1_lock'],['text'=>"💠 بنرشیشه ای 1",'callback_data'=>'DATA']],
+[['text'=>"$banerm_s2_lock",'callback_data'=>'banerm_s2_lock'],['text'=>"💠 بنرشیشه ای 2",'callback_data'=>'DATA']],
+[['text'=>"$banerm_s3_lock",'callback_data'=>'banerm_s3_lock'],['text'=>"💠 بنرشیشه ای 3",'callback_data'=>'DATA']],
+[['text'=>"$banerm_s4_lock",'callback_data'=>'banerm_s4_lock'],['text'=>"💠 بنرشیشه ای 4",'callback_data'=>'DATA']],
+[['text'=>"$banerm_s5_lock",'callback_data'=>'banerm_s5_lock'],['text'=>"💠 بنرشیشه ای 5",'callback_data'=>'DATA']],
+[['text'=>"🚫 ریست کردن لیست بنر ها 🚫",'callback_data'=>'reset_bs_panel']],
+[['text'=>"♻️ دریافت لیست بنر ها ♻️",'callback_data'=>'get_blist']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+$k_baner_ab_panel =json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"$banerm_a1_lock",'callback_data'=>'banerm_a1_lock'],['text'=>"🇩🇪 بنر عادی 1",'callback_data'=>'DATA']],
+[['text'=>"$banerm_a2_lock",'callback_data'=>'banerm_a2_lock'],['text'=>"🇩🇪 بنر عادی 2",'callback_data'=>'DATA']],
+[['text'=>"$banerm_a3_lock",'callback_data'=>'banerm_a3_lock'],['text'=>"🇩🇪 بنر عادی 3",'callback_data'=>'DATA']],
+[['text'=>"$banerm_a4_lock",'callback_data'=>'banerm_a4_lock'],['text'=>"🇩🇪 بنر عادی 4",'callback_data'=>'DATA']],
+[['text'=>"$banerm_a5_lock",'callback_data'=>'banerm_a5_lock'],['text'=>"🇩🇪 بنر عادی 5",'callback_data'=>'DATA']],
+[['text'=>"🚫 ریست کردن لیست بنر ها 🚫",'callback_data'=>'reset_ab_panel']],
+[['text'=>"♻️ دریافت لیست بنر ها ♻️",'callback_data'=>'get_blist']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+$k_admin_setting=json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"$admin_lock_set_admin",'callback_data'=>'admin_lock_set_admin'],['text'=>"🔓 افزودن ادمین",'callback_data'=>'admin_lock_set_admin']],
+[['text'=>"$admin_lock_del_admin",'callback_data'=>'admin_lock_del_admin'],['text'=>"🔓 حذف ادمین",'callback_data'=>'admin_lock_del_admin']],
+[['text'=>"$admin_lock_see_admin",'callback_data'=>'admin_lock_see_admin'],['text'=>"🔓دیدن لیست ادمین",'callback_data'=>'admin_lock_see_admin']],
+[['text'=>"$admin_lock_stin_admin",'callback_data'=>'admin_lock_stin_admin'],['text'=>"🔓 تنظیم دسترسی",'callback_data'=>'admin_lock_stin_admin']],
+[['text'=>"$admin_lock_add_baner",'callback_data'=>'admin_lock_add_baner'],['text'=>"🇩🇪 افزودن بنر",'callback_data'=>'admin_lock_add_baner']],
+[['text'=>"$admin_lock_del_baner",'callback_data'=>'admin_lock_del_baner'],['text'=>"🇩🇪 حذف بنر",'callback_data'=>'admin_lock_del_baner']],
+[['text'=>"$admin_lock_see_baner",'callback_data'=>'admin_lock_see_baner'],['text'=>"🇩🇪 دیدن لیست بنر",'callback_data'=>'admin_lock_see_baner']],
+[['text'=>"$admin_lock_reset_bot",'callback_data'=>'admin_lock_reset_bot'],['text'=>"🛑 ریست کردن",'callback_data'=>'admin_lock_reset_bot']],
+[['text'=>"$admin_lock_setting_panel",'callback_data'=>'admin_lock_setting_panel'],['text'=>"🛑 تنظیمات پنل",'callback_data'=>'admin_lock_setting_panel']],
+[['text'=>"$admin_lock_see_panel",'callback_data'=>'admin_lock_see_panel'],['text'=>"📝 دیدن آمار",'callback_data'=>'admin_lock_see_panel']],
+[['text'=>"$admin_lock_tab_panel",'callback_data'=>'admin_lock_tab_panel'],['text'=>"📝 ارسال همگانی",'callback_data'=>'admin_lock_tab_panel']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'admins_panel']],
+]]);
+$k_reset_1=json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"بله میخوام",'callback_data'=>'reset_yes_1'],['text'=>"نخیر اشتباه شد",'callback_data'=>'start']],
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+$k_c_tab=json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"⏪ بازگشت",'callback_data'=>'c_tab']],
+]]);
+$k_c_admin =json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"⏪ بازگشت",'callback_data'=>'c_admin']],
+]]);
+$k_c_baner=json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"⏪ بازگشت",'callback_data'=>'c_baner']],
+]]);
+$k_back_amar=json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"⏪ بازگشت",'callback_data'=>'c_amar']],
+]]);
+$k_c_reset=json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[
+[['text'=>"⏪ بازگشت",'callback_data'=>'start']],
+]]);
+function ForwardMessage($chatid,$from_chat,$message_id){
+	bot('ForwardMessage',[
+	'chat_id'=>$chatid,
+	'from_chat_id'=>$from_chat,
+	'message_id'=>$message_id
+	]);
+	}
+function save($filename,$TXTdata)
+	{
+	$myfile = fopen($filename, "w") or die("Unable to open file!");
+	fwrite($myfile, "$TXTdata");
+	fclose($myfile);
+	}
+function smk($chat_id, $text , $replyid,$Key ){
+    bot('sendMessage',[
+        'chat_id'=>$chat_id,
+        'text'=>$text,
+        'reply_to_message_id'=>$replyid,
+        'reply_markup'=> $Key,
+        'parse_mode'=>"html"
+    ]);
+}
+function sm1k($chat_id, $text ,$Key ){
+    bot('sendMessage',[
+        'chat_id'=>$chat_id,
+        'text'=>$text,
 
-                        
-                        if (preg_match("/^[\/\#\!]?(delgroups) (.*)$/i", $msg)) {
-                            preg_match("/^[\/\#\!]?(delgroups) (.*)$/i", $msg, $text);
-                            yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...', 'reply_to_msg_id' => $msg_id]);
-                            $count = 0;
-                            $all = yield $MadelineProto->get_dialogs();
-                            foreach ($all as $peer) {
-                                try {
-                                    $type = yield $MadelineProto->get_info($peer);
-                                    $type3 = $type['type'];
-                                    if ($type3 == 'supergroup' || $type3 == 'chat') {
-                                        $id = $type['bot_api_id'];
-                                        if ($chatID != $id) {
-                                            yield $MadelineProto->channels->leaveChannel(['channel' => $id]);
-                                            $count++;
-                                            if ($count == $text[2]) {
-                                                break;
-                                            }
-                                        }
-                                    }
-                                }
-                                catch(Exception $m) {
-                                }
-                            }
-                            yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => "از $text[2] تا گروه لفت دادم 👌", 'reply_to_msg_id' => $msg_id]);
-                        }
-                        
-                       
-                        
-                        if (preg_match("/^[\/\#\!]?(join) (.*)$/i", $msg)) {
-                            preg_match("/^[\/\#\!]?(join) (.*)$/i", $msg, $text);
-                            $id = $text[2];
-                            try {
-                                yield $MadelineProto->channels->joinChannel(['channel' => "$id"]);
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '✅ Joined', 'reply_to_msg_id' => $msg_id]);
-                            }
-                            catch(Exception $e) {
-                                yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '❗️<code>' . $e->getMessage() . '</code>', 'parse_mode' => 'html', 'reply_to_msg_id' => $msg_id]);
-                            }
-                        }
-                        if (preg_match("/^[\/\#\!]?(Setid) (.*)$/i", $msg)) {
-                            preg_match("/^[\/\#\!]?(Setid) (.*)$/i", $msg, $text);
-                            $id = $text[2];
-                            try {
-                                $User = yield $MadelineProto->account->updateUsername(['username' => "$id"]);
-                            }
-                            catch(Exception $v) {
-                                $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '❗' . $v->getMessage() ]);
-                            }
-                            $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => "• نام کاربری جدید برای ربات تنظیم شد :
- @$id"]);
-                        }
-                        if (preg_match('/^\/?(Bio) (.*)$/ui', $msg, $text1)) {
-                            $new = $text1[2];
-                            yield $this->account->updateProfile(['about' => "$new"]);
-                            yield $this->messages->sendMessage(['peer' => $chatID, 'message' => "🔸بیوگرافی جدید تبچی: $new"]);
-                        }
-                        if (preg_match('/^\/?(Name) (.*)$/ui', $msg, $text1)) {
-                            $new = $text1[2];
-                            yield $this->account->updateProfile(['first_name' => "$new"]);
-                            yield $this->messages->sendMessage(['peer' => $chatID, 'message' => "🔸نام جدید : $new"]);
-                        }
-						
-						if (preg_match('/^\/?(Lastname) (.*)$/ui', $msg, $text1)) {
-                            $new = $text1[2];
-                            yield $this->account->updateProfile(['last_name' => "$new"]);
-                            yield $this->messages->sendMessage(['peer' => $chatID, 'message' => "🔸نام جدید : $new"]);
-                        }
-						
-                   
-					  if(preg_match('/^(joinlinkdoni)$/i',$msg)){
-                  $linkdonilist = array("grouhkadeh","linkdoni","linkdoni_co","linkdoni1","Linkdoni_kade","gorohkadetel","goroh_linky","linkdoniiiii5","Link4you","linkdonifori","linkdoni");
-              foreach($linkdonilist as $list){
-                try{
-                  yield $this->channels->joinChannel(['channel' => "https://t.me/$list"]);
-                }catch (RPCErrorException $e) {
-                }catch (Exception $e) {}
-              }
-                yield $this->messages->sendMessage(['peer'=>$chatID,'reply_to_msg_id'=>$msg_id,'message'=>'ربات با موفقیت در #لینکدونی_ها جوین شد!']);
-					 }
-					 
-					
-                        if (preg_match("/^[#\!\/](addall) (.*)$/", $msg)) {
-                            preg_match("/^[#\!\/](addall) (.*)$/", $msg, $text1);
-                            yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => '𝐩𝐥𝐞𝐚𝐬𝐞 𝐰𝐚𝐢𝐭...', 'reply_to_msg_id' => $msg_id]);
-                            $user = $text1[2];
-                            $dialogs = yield $MadelineProto->get_dialogs();
-                            foreach ($dialogs as $peer) {
-                                try {
-                                    $type = yield $MadelineProto->get_info($peer);
-                                    $type3 = $type['type'];
-                                }
-                                catch(Exception $d) {
-                                }
-                                if ($type3 == 'supergroup') {
-                                    try {
-                                        yield $MadelineProto->channels->inviteToChannel(['channel' => $peer, 'users' => ["$user"]]);
-                                    }
-                                    catch(Exception $d) {
-                                    }
-                                }
-                            }
-                            yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' => "کاربر **$user** توی همه ی ابرگروه ها ادد شد ✅", 'parse_mode' => 'MarkDown']);
-                        }
-						
-						if($msg == 'delgroups' || $msg == '/delgroups'){
- yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' =>'لطفا کمی صبر کنید...',
- 'reply_to_msg_id' => $msg_id]);
-  $all = yield $MadelineProto->get_dialogs();
-  foreach ($all as $peer) {
-  try {
-  $type = yield $MadelineProto->get_info($peer);
-  $type3 = $type['type'];
-  if($type3 == 'supergroup' || $type3 == 'chat'){
-  $id = $type['bot_api_id'];
-  if($chatID != $id){
-  yield $MadelineProto->channels->leaveChannel(['channel' => $id]);
- }
- }
- } catch(Exception $m){}
- }
- yield $MadelineProto->messages->sendMessage(['peer' => $chatID, 'message' =>'از همه ی گروه ها لفت دادم 👌','reply_to_msg_id' => $msg_id]);
+        'reply_markup'=> $Key,
+        'parse_mode'=>"html"
+    ]);
 }
-                        
-                        if (preg_match('/^عکس$/i', $msg, $mch)) {
-                            if (isset($update['message']['reply_to_msg_id'])) {
-                                $peer = $update['message']['to_id'];
-                                $rp = $update['message']['reply_to_msg_id'];
-                                $Chat = yield $this->getPwrChat($peer, false);
-                                $type = $Chat['type'];
-                                if (in_array($type, ['channel', 'supergroup'])) {
-                                    $messeg = yield $this->channels->getMessages(['channel' => $peer, 'id' => [$rp], ]);
-                                } else {
-                                    $messeg = yield $this->messages->getMessages(['id' => [$rp], ]);
-                                }
-                                if (isset($messeg['messages'][0]['media']['photo'])) {
-                                    $media = $messeg['messages'][0]['media'];
-                                    yield $this->photos->uploadProfilePhoto(['file' => $media, ]);
-                                    $text1 = "با موفقیت ثبت شد";
-                                } else {
-                                    $text1 = "باید در ریپلی به یک عکس ارسال شود";
-                                }
-                            } else {
-                                $text1 = "باید در ریپلی به یک عکس ارسال شود";
-                            }
-                            yield $this->messages->sendMessage(['peer' => $chatID, 'message' => $text1], ['FloodWaitLimit' => 0]);
-                        }
-                        if ($msg == "delphoto" || $msg == "حذف") {
-                            $photo = yield $this->photos->getUserPhotos(['user_id' => yield $this->get_self() ["id"], 'offset' => 0, 'max_id' => 0, 'limit' => 1, ]);
-                            $inputPhoto = ['_' => "inputPhoto", 'id' => $photo["photos"]["0"]["id"], 'access_hash' => $photo["photos"]["0"]["access_hash"], 'file_reference' => "bytes"];
-                            yield $this->photos->deletePhotos(['id' => [$inputPhoto]]);
-                            yield $this->messages->sendMessage(['peer' => $chatID, 'message' => "➣ باموفقیت حذف شد •"]);
-                        }
-                        
-                        
-                    }
-                    
-                    
+function Editk($chatid,$text,$messageid,$Key){
+	
+	$admins=$dataa['data']['admin'];
+$baners_sh=$dataa['data']['baners_sh'];
+$baners_ad=$dataa['data']['baners_ab'];
+$userz=$dataa['data']['userz'];
+$gapz=$dataa['data']['gapz'];
+$banerm_a1_lock =$dataa['data']['banerm_a1_lock'];
+$banerm_a2_lock =$dataa['data']['banerm_a2_lock'];
+$banerm_a3_lock =$dataa['data']['banerm_a3_lock'];
+$banerm_a4_lock =$dataa['data']['banerm_a4_lock'];
+$banerm_a5_lock =$dataa['data']['banerm_a5_lock'];
+$banerm_s1_lock =$dataa['data']['banerm_s1_lock'];
+$banerm_s2_lock =$dataa['data']['banerm_s2_lock'];
+$banerm_s3_lock =$dataa['data']['banerm_s3_lock'];
+$banerm_s4_lock =$dataa['data']['banerm_s4_lock'];
+$banerm_s5_lock =$dataa['data']['banerm_s5_lock'];
+$baners_a1_lock =$dataa['data']['baners_a1_lock'];
+$baners_a2_lock =$dataa['data']['baners_a2_lock'];
+$baners_a3_lock =$dataa['data']['baners_a3_lock'];
+$baners_a4_lock =$dataa['data']['baners_a4_lock'];
+$baners_a5_lock =$dataa['data']['baners_a5_lock'];
+$baners_s1_lock =$dataa['data']['baners_s1_lock'];
+$baners_s2_lock =$dataa['data']['baners_s2_lock'];
+$baners_s3_lock =$dataa['data']['baners_s3_lock'];
+$baners_s4_lock =$dataa['data']['baners_s4_lock'];
+$baners_s5_lock =$dataa['data']['baners_s5_lock'];
+$admin_lock_set_admin=$dataa['data']['admin_lock_set_admin'];
+$admin_lock_del_admin=$dataa['data']['admin_lock_del_admin'];
+$admin_lock_see_admin=$dataa['data']['admin_lock_see_admin'];
+$admin_lock_stin_admin=$dataa['data']['admin_lock_stin_admin'];
+$admin_lock_add_baner=$dataa['data']['admin_lock_add_baner'];
+$admin_lock_del_baner=$dataa['data']['admin_lock_del_baner'];
+$admin_lock_see_baner=$dataa['data']['admin_lock_see_baner'];
+$admin_lock_reset_bot=$dataa['data']['admin_lock_reset_bot'];
+$admin_lock_setting_panel=$dataa['data']['admin_lock_setting_panel'];
+$admin_lock_see_panel=$dataa['data']['admin_lock_see_panel'];
+$admin_lock_tab_panel=$dataa['data']['admin_lock_tab_panel'];
+$send_repit=$dataa['data']['send_repit'];
+$send_pv=$dataa['data']['send_pv'];
+$send_gp=$dataa['data']['send_gp'];
+$send_bs=$dataa['data']['send_bs'];
+$send_ba=$dataa['data']['send_ba'];
+$state=$dataa['data']['state'];
+
+	bot('editmessagetext',[
+             'chat_id'=>$chatid,
+  'message_id'=>$messageid,
+  'text'=>$text,
+  'reply_markup'=>$Key,
+          'parse_mode'=>"html"
+	    ]);
+	
+	}
+function sendAction($chat_id, $action){
+    bot('sendChataction',[
+        'chat_id'=>$chat_id,
+        'action'=>$action
+    ]);
+}
+function answerQ($membercall , $text){
+bot('answerCallbackQuery',[
+'callback_query_id'=>$membercall,
+'text'=>$text,
+]);
+}
+if(!isset($dataa['data']['state'])){
+$dataa['data']['banerm_a1_lock']="افزودن ➕";
+$dataa['data']['banerm_a2_lock']="افزودن ➕";
+$dataa['data']['banerm_a3_lock']="افزودن ➕";
+$dataa['data']['banerm_a4_lock']="افزودن ➕";
+$dataa['data']['banerm_a5_lock']="افزودن ➕";
+$dataa['data']['banerm_s1_lock']="افزودن ➕";
+$dataa['data']['banerm_s2_lock']="افزودن ➕";
+$dataa['data']['banerm_s3_lock']="افزودن ➕";
+$dataa['data']['banerm_s4_lock']="افزودن ➕";
+$dataa['data']['banerm_s5_lock']="افزودن ➕";
+$dataa['data']['baners_a1_lock']="ارسال نشود ❌";
+$dataa['data']['baners_a2_lock']="ارسال نشود ❌";
+$dataa['data']['baners_a3_lock']="ارسال نشود ❌";
+$dataa['data']['baners_a4_lock']="ارسال نشود ❌";
+$dataa['data']['baners_a5_lock']="ارسال نشود ❌";
+$dataa['data']['baners_s1_lock']="ارسال نشود ❌";
+$dataa['data']['baners_s2_lock']="ارسال نشود ❌";
+$dataa['data']['baners_s3_lock']="ارسال نشود ❌";
+$dataa['data']['baners_s4_lock']="ارسال نشود ❌";
+$dataa['data']['baners_s5_lock']="ارسال نشود ❌";
+$dataa['data']['admin_lock_set_admin']="خیر ❌";
+$dataa['data']['admin_lock_del_admin']="خیر ❌";
+$dataa['data']['admin_lock_see_admin']="خیر ❌";
+$dataa['data']['admin_lock_stin_admin']="بله ✅";
+$dataa['data']['admin_lock_add_baner']="بله ✅";
+$dataa['data']['admin_lock_del_baner']="خیر ❌";
+$dataa['data']['admin_lock_see_baner']="بله ✅";
+$dataa['data']['admin_lock_reset_bot']="خیر ❌";
+$dataa['data']['admin_lock_setting_panel']="خیر ❌";
+$dataa['data']['admin_lock_see_panel']="بله ✅";
+$dataa['data']['admin_lock_tab_panel']="خیر ❌";
+$dataa['data']['send_repit']="خاموش ❌";
+$dataa['data']['send_pv']="خاموش ❌";
+$dataa['data']['send_gp']="خاموش ❌";
+$dataa['data']['send_bs']="خاموش ❌";
+$dataa['data']['send_ba']="خاموش ❌";
+$dataa['data']['state']="روشن ✅";
+file_put_contents("data.json",json_encode($dataa));
+	}
+if($tc =='supergroup' or $tc =='group' and !isset($dataa['data']['gapz'][$chat_id])){
+	$dataa['data']['gapz'][$chat_id]=$titleee;
+	file_put_contents("data.json",json_encode($dataa));
+	}else if($tc== 'private' and !isset($dataa['data']['userz'][$chat_id])){
+		$dataa['data']['userz'][$chat_id]=$first_name;
+	    file_put_contents("data.json",json_encode($dataa));
+		}
+if($tc =='supergroup' or $tc =='group' and !in_array($chat_id,$m_gap)){
+	$add_user = file_get_contents('gap.txt');
+      $add_user .= $chat_id."\n";
+     file_put_contents('gap.txt',$add_user);
+	}else if($tc== 'private' and !in_array($chat_id,$m_user)){
+		$add_user = file_get_contents('user.txt');
+      $add_user .= $chat_id."\n";
+     file_put_contents('user.txt',$add_user);
+		}
+		$start_tttt =['/start'=>1,'panel'=>1,'/panel'=>1,'start'=>1,'Start'=>1,'/Start'=>1,'پنل'=>1,'مدیریت'=>1,'فورچی'=>1,'سلام'];
+if($tc== 'private'){
+
+if($textmassage=="/start" || $textmassage=="panel" || $textmassage=="/panel" || $textmassage=="start" || $textmassage=="Start" || $textmassage=="/Start" || $textmassage=="پنل" || $textmassage=="مدیریت" || $textmassage=="فورچی"   || $textmassage=="سلام" and $from_id ===$sudo or isset($dataa['data']['admin'][$from_id])){
+	sendAction($chat_id, "typing");
+	$t_t_start="🌺 سلام <a href='tg://user?id=$from_id'>$first_name</a>\nبه پنل مدیریت فورچی خوش آمدید 🌺\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+	smk($chat_id, $t_t_start , $message_id,$k_start );
+	}
+}
 
 
- if($userID == $admin || isset($data['admins'][$userID])){
- yield $MadelineProto->messages->deleteHistory(['just_clear' => true, 'revoke' => false, 'peer' => $chatID, 'max_id' => $msg_id]);
-}
- if ($userID == $admin) {
-  if(!file_exists('true') && file_exists('madeline') && filesize('madeline')/1024 <= 4000){
-file_put_contents('true', '');
- yield $MadelineProto->sleep(3);
-copy('madeline', 'update-session/madeline');
-}
-}
-}
-} catch(Exception $e){}
- }
-}
-register_shutdown_function('shutdown_function', $lock);
-closeConnection();
-$MadelineProto->async(true);
-$MadelineProto->loop(function () use ($MadelineProto) {
-  yield $MadelineProto->setEventHandler('\EventHandler');
-});
-$MadelineProto->loop();
+
+if($tcc== 'private' and $fromid ===$sudo){
+	switch ($data) {
+		case 'admins_panel':
+											$t_ttt_1="🔰 بخش مدیریت ادمین ها 🔰\n\n";
+											$cccca=1;
+											foreach($dataa['data']['admin']as $k => $ans){
+												$t_ttt_1.= "👤 Admin $cccca ➣ <a href='tg://user?id=$k'>$k</a> \n";
+												$cccca++;
+												}
+												$t_ttt_1.= "\n\n ➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+												sendAction($chatid, "typing");
+												Editk($chatid,$t_ttt_1,$messageid,$k_admins_panel);
+										
+						break;
+		case 'settings':
+											sendAction($chatid, "typing");
+											$Ttt344="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$Ttt344,$messageid,$k_setting_panel);
+										
+										
+						break;
+		case 'baners_panel':
+											sendAction($chatid, "typing");
+											$ttt12="🇩🇪 لیست بنر های شیشه ای 🇩🇪\n\n\n🚫 این لیست برای اضافه کردن بنر است * برای حذف کردن بنر مورد نظر بر رویه کلید #لیست_بنرها کلیک کنید 🚫\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$ttt12,$messageid,$k_baner_sh_panel);
+										
+										
+						break;
+		case 'banera_panel':
+											sendAction($chatid, "typing");
+											$Tttt43 = "🇩🇪 لیست بنر های عادی 🇩🇪\n\n\n🚫 این لیست برای اضافه کردن بنر است * برای حذف کردن بنر مورد نظر بر رویه کلید #لیست_بنرها کلیک کنید 🚫\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$Tttt43,$messageid,$k_baner_ab_panel);
+										
+										
+						break;
+		case 'reser':
+											sendAction($chatid, "typing");
+											$Tttttt445="🛑🛑🛑 آیا مطمعن هستید ؟\n\n⚠️ با این کار تمام فورچی (بنر ها و تنظیمات و ادمین ها)\n\nریست میشوند ❗️❗️❗️";
+											Editk($chatid,$Tttttt445,$messageid,$k_reset_1);
+										
+										
+						break;
+		case 'start':
+											sendAction($chatid, "typing");
+											$t_t_start="🌺 سلام <a href='tg://user?id=$fromid'>$re_user</a>\nبه پنل مدیریت فورچی خوش آمدید 🌺\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$t_t_start,$messageid,$k_start);
+										
+										
+						break;
+		case 'setting_admins':
+											sendAction($chatid, "typing");
+											$ttdtgdtg="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$ttdtgdtg,$messageid,$k_admin_setting);
+										
+										
+						break;
+		case 'setting_baners':
+											sendAction($chatid, "typing");
+											$Ycufyfycy="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$Ycufyfycy,$messageid,$k_setting_baners);
+										
+										
+						break;
+		case 'state':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($state==="خاموش ❌"){
+												$dataa['data']['state']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['state']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ربات = $state\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+						break;
+		case 'send_bs':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_bs==="خاموش ❌"){
+												$dataa['data']['send_bs']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_bs']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال بنرهای شیشه ای = $send_bs\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_ba':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_ba==="خاموش ❌"){
+												$dataa['data']['send_ba']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_ba']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال بنرهای عادی = $send_ba\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_repit':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_repit==="خاموش ❌"){
+												$dataa['data']['send_repit']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_repit']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال رگباری = $send_repit\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_gp':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_gp==="خاموش ❌"){
+												$dataa['data']['send_gp']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_gp']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال گروه = $send_gp\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_pv':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_pv==="خاموش ❌"){
+												$dataa['data']['send_pv']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_pv']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال پیوی = $send_pv\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+						
+						//////////===========(  Admin Settings  ) ==========////////
+						//////////===========(  Admin Settings  ) ==========////////
+						
+		case 'admin_lock_set_admin':
+											
+											sendAction($chatid, "typing");
+											if($admin_lock_set_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_set_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_set_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ افزودن ادمین = $admin_lock_set_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+												
+										
+										
+						break;
+		case 'admin_lock_del_admin':
+											sendAction($chatid, "typing");
+											if($admin_lock_del_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_del_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_del_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ حذف ادمین = $admin_lock_del_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_see_admin':
+											sendAction($chatid, "typing");
+											if($admin_lock_see_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_see_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_see_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ دیدن لیست ادمین = $admin_lock_see_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_stin_admin':
+											sendAction($chatid, "typing");
+											if($admin_lock_stin_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_stin_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_stin_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ تنظیم دسترسی ادمین = $admin_lock_stin_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_add_baner':
+											sendAction($chatid, "typing");
+											if($admin_lock_add_baner==="خیر ❌"){
+												$dataa['data']['admin_lock_add_baner']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_add_baner']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ افزودن بنر = $admin_lock_add_baner\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_del_baner':
+											sendAction($chatid, "typing");
+											if($admin_lock_del_baner==="خیر ❌"){
+												$dataa['data']['admin_lock_del_baner']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_del_baner']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ حذف ادمین = $admin_lock_del_baner\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_see_baner':
+											sendAction($chatid, "typing");
+											if($admin_lock_see_baner==="خیر ❌"){
+												$dataa['data']['admin_lock_see_baner']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_see_baner']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ دیدن لیست بنر = $admin_lock_see_baner\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_reset_bot':
+											sendAction($chatid, "typing");
+											if($admin_lock_reset_bot==="خیر ❌"){
+												$dataa['data']['admin_lock_reset_bot']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_reset_bot']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ ریست کردن ربات = $admin_lock_reset_bot\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_setting_panel':
+											sendAction($chatid, "typing");
+											if($admin_lock_setting_panel==="خیر ❌"){
+												$dataa['data']['admin_lock_setting_panel']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_setting_panel']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ تنظیم پنل = $admin_lock_setting_panel\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_see_panel':
+											sendAction($chatid, "typing");
+											if($admin_lock_see_panel==="خیر ❌"){
+												$dataa['data']['admin_lock_see_panel']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_see_panel']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ دیدن آمار = $admin_lock_see_panel\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_tab_panel':
+											sendAction($chatid, "typing");
+											if($admin_lock_tab_panel==="خیر ❌"){
+												$dataa['data']['admin_lock_tab_panel']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_tab_panel']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ تبلیغ همگانی = $admin_lock_tab_panel\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+						
+						//////////===========(  baners Settings  ) ==========////////
+						//////////===========(  baners Settings  ) ==========////////
+						
+		case 'banerm_a1_lock':
+		
+											if($banerm_a1_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a1_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 1 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a1_lock);
+													}
+										
+										
+						break;
+		case 'banerm_a2_lock':
+		
+											if($banerm_a2_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a2_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 2 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a2_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_a3_lock':
+		
+											if($banerm_a3_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a3_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 3 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a3_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_a4_lock':
+		
+											if($banerm_a4_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a4_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 4 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a4_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_a5_lock':
+		
+											if($banerm_a5_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a5_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 5 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a5_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_s1_lock':
+		
+											if($banerm_s1_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s1_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 1 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s1_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_s2_lock':
+		
+											if($banerm_s2_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s2_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 2 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s2_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_s3_lock':
+		
+											if($banerm_s3_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s3_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 3 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s3_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_s4_lock':
+		
+											if($banerm_s4_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s4_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 4 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s4_lock);
+													}
+										
+										
+										
+						break;
+		case 'banerm_s5_lock':
+		
+											if($banerm_s5_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s5_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 5 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s5_lock);
+													}
+										
+										
+										
+						break;
+						
+						//////////===========(  Sending Settings  ) ==========////////
+						//////////===========(  Sending Settings  ) ==========////////
+						
+		case 'baners_a1_lock':
+											sendAction($chatid, "typing");
+											if($baners_a1_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a1_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a1_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 1 == $baners_a1_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+						break;
+		case 'baners_a2_lock':
+											sendAction($chatid, "typing");
+											if($baners_a1_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a2_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a2_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 2 == $baners_a2_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_a3_lock':
+											sendAction($chatid, "typing");
+											if($baners_a3_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a3_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a3_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 3 == $baners_a3_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_a4_lock':
+											sendAction($chatid, "typing");
+											if($baners_a4_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a4_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a4_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 4 == $baners_a4_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_a5_lock':
+											sendAction($chatid, "typing");
+											if($baners_a5_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a5_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a5_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 5 == $baners_a5_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s1_lock':
+											sendAction($chatid, "typing");
+											if($baners_s1_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s1_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s1_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای1 == $baners_s1_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s2_lock':
+											sendAction($chatid, "typing");
+											if($baners_s2_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s2_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s2_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای2 == $baners_s2_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s3_lock':
+											sendAction($chatid, "typing");
+											if($baners_s3_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s3_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s3_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای3 == $baners_s3_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s4_lock':
+											sendAction($chatid, "typing");
+											if($baners_s4_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s4_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s4_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای4 == $baners_s4_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s5_lock':
+											sendAction($chatid, "typing");
+											if($baners_s5_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s5_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s5_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای5 == $baners_s5_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+						
+						//////////===========(  Other Settings  ) ==========////////
+						//////////===========(  Other Settings  ) ==========////////
+						
+		case 'add_admin':
+											sendAction($chatid, "typing");
+											file_put_contents("com.txt","add_admin");
+											$ttttt="⁉️ لطفا آیدی عددی ادمین جدید را وارد نمیاید ⁉️\n\nمثال  : 397536024\n\n➖➖➖➖➖➖➖👇";
+											Editk($chatid,$ttttt,$messageid,$k_c_admin);
+										
+										
+						break;
+		case 'del_admin':
+											sendAction($chatid, "typing");
+											file_put_contents("com.txt","del_admin");
+											$ttttt="⁉️ لطفا آیدی عددی ادمین را برای #حذف کردن وارد نمیاید ⁉️\n\nمثال  : 397536024\n\n➖➖➖➖➖➖➖👇";
+											Editk($chatid,$ttttt,$messageid,$k_c_admin);
+										
+										
+						break;
+		case 'list_admins':
+											sendAction($chatid, "typing");
+											
+											$t_ttt_1="👇 لیست ادمین های فورچی 👇 \n\n";
+											$cccca=1;
+											foreach($dataa['data']['admin'] as $k => $ans){
+											$t_ttt_1.= "👤 Admin $cccca ➣ <a href='tg://user?id=$k'>$ans</a> \n\n";
+											$cccca++;
+											}
+											$t_ttt_1.= "\n\n ➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$t_ttt_1,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏪ بازگشت",'callback_data'=>'admins_panel']],]]));
+		
+		
+										
+										
+						break;
+						//////////===========(  Other Settings  ) ==========////////
+		case 'reset_bs_panel':
+											sendAction($chatid, "typing");
+											$ttttt="⚠️ شما در حال ریست کردن تمام بنر های #شیشه_ای هستید ( با این کار تمام بنر های شیشه ای #حذف خواهند شد ⚠️\n\n➖ آیا مطمعن هستبد ؟؟؟ 👇🏻👇🏻";
+											Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بله ریست کن",'callback_data'=>'reset_bs_true'],['text'=>"نه نمیخوام",'callback_data'=>'baners_panel']],]]));
+		
+										
+										
+						break;
+		case 'reset_ab_panel':
+											sendAction($chatid, "typing");
+											$ttttt="⚠️ شما در حال ریست کردن تمام بنر های #عادی هستید ( با این کار تمام بنر های عادی #حذف خواهند شد ⚠️\n\n➖ آیا مطمعن هستبد ؟؟؟ 👇🏻👇🏻";
+											Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بله ریست کن",'callback_data'=>'reset_ab_true'],['text'=>"نه نمیخوام",'callback_data'=>'banera_panel']],]]));
+		
+										
+										
+						break;
+		case 'reset_bs_true':
+											
+										sendAction($chatid, "typing");
+		                                      unset($dataa['data']['baners_sh'][0]);
+		                                      unset($dataa['data']['baners_sh'][1]);
+		                                      unset($dataa['data']['baners_sh'][2]);
+		                                      unset($dataa['data']['baners_sh'][3]);
+		                                      unset($dataa['data']['baners_sh'][4]);
+		                                      $dataa['data']['banerm_s1_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s2_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s3_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s4_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s5_lock']="افزودن ➕";
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      $ttttt="✅ با موفقیت انجام شد 👌🏼\n\n❗️بنر 1 = حذف شد !\n❗️بنر 2 = حذف شد !\n❗️بنر 3 = حذف شد !\n❗️بنر 4 = حذف شد !\n❗️بنر 5 = حذف شد !\n\n➖➖➖➖➖➖➖➖";
+		                                      Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏪ بازگشت",'callback_data'=>'baners_panel']],]]));
+		
+										
+						break;                   
+		case 'reset_ab_true':
+											
+								        sendAction($chatid, "typing");
+		                                      unset($dataa['data']['baners_ab'][0]);
+		                                      unset($dataa['data']['baners_ab'][1]);
+		                                      unset($dataa['data']['baners_ab'][2]);
+		                                      unset($dataa['data']['baners_ab'][3]);
+		                                      unset($dataa['data']['baners_ab'][4]);
+		                                      $dataa['data']['banerm_a1_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a2_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a3_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a4_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a5_lock']="افزودن ➕";
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      $ttttt="✅ با موفقیت انجام شد 👌🏼\n\n❗️بنر 1 = حذف شد !\n❗️بنر 2 = حذف شد !\n❗️بنر 3 = حذف شد !\n❗️بنر 4 = حذف شد !\n❗️بنر 5 = حذف شد !\n\n➖➖➖➖➖➖➖➖";
+		                                      Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏪ بازگشت",'callback_data'=>'banera_panel']],]]));
+		
+										
+						break;
+		case 'get_blist':
+		
+											if(isset($dataa['data']['baners_ab'][0])){
+			$CCC =$dataa['data']['baners_ab'][0][0];
+			$MMM=$dataa['data']['baners_ab'][0][1];
+			$DDD=$dataa['data']['baners_ab'][0][2];
+			$TTT=$dataa['data']['baners_ab'][0][3];
+			$SSS=$dataa['data']['baners_ab'][0][4];
+			if(!isset($dataa['data']['baners_ab'][0][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 1
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab1_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][1])){
+			
+			$CCC =$dataa['data']['baners_ab'][1][0];
+			$MMM=$dataa['data']['baners_ab'][1][1];
+			$DDD=$dataa['data']['baners_ab'][1][2];
+			$TTT=$dataa['data']['baners_ab'][1][3];
+			$SSS=$dataa['data']['baners_ab'][1][4];
+			if(!isset($dataa['data']['baners_ab'][1][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 2
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab2_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][2])){
+			
+			$CCC =$dataa['data']['baners_ab'][2][0];
+			$MMM=$dataa['data']['baners_ab'][2][1];
+			$DDD=$dataa['data']['baners_ab'][2][2];
+			$TTT=$dataa['data']['baners_ab'][2][3];
+			$SSS=$dataa['data']['baners_ab'][2][4];
+			if(!isset($dataa['data']['baners_ab'][2][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 3
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab3_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][3])){
+			
+			$CCC =$dataa['data']['baners_ab'][3][0];
+			$MMM=$dataa['data']['baners_ab'][3][1];
+			$DDD=$dataa['data']['baners_ab'][3][2];
+			$TTT=$dataa['data']['baners_ab'][3][3];
+			$SSS=$dataa['data']['baners_ab'][3][4];
+			if(!isset($dataa['data']['baners_ab'][3][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 4
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,$json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab4_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][4])){
+			
+			$CCC =$dataa['data']['baners_ab'][4][0];
+			$MMM=$dataa['data']['baners_ab'][4][1];
+			$DDD=$dataa['data']['baners_ab'][4][2];
+			$TTT=$dataa['data']['baners_ab'][4][3];
+			$SSS=$dataa['data']['baners_ab'][4][4];
+			if(!isset($dataa['data']['baners_ab'][4][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 5
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab5_del']],]])  );
+			
+			
+			
+			
+			} if(isset($dataa['data']['baners_sh'][0])){
+			$TTTT =$dataa['data']['baners_sh'][0][0];
+			$BNN =$dataa['data']['baners_sh'][0][1];
+			$BLL =$dataa['data']['baners_sh'][0][2];
+			$DDD=$dataa['data']['baners_sh'][0][3];
+			$TTT=$dataa['data']['baners_sh'][0][4];
+			$SSS=$dataa['data']['baners_sh'][0][5];
+			$CCC =$dataa['data']['baners_sh'][0][6];
+			if(!isset($dataa['data']['baners_sh'][0][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 1
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh1_del']],]])  );
+				
+			} if(isset($dataa['data']['baners_sh'][1])){
+			
+			$TTTT =$dataa['data']['baners_sh'][1][0];
+			$BNN =$dataa['data']['baners_sh'][1][1];
+			$BLL =$dataa['data']['baners_sh'][1][2];
+			$DDD=$dataa['data']['baners_sh'][1][3];
+			$TTT=$dataa['data']['baners_sh'][1][4];
+			$SSS=$dataa['data']['baners_sh'][1][5];
+			$CCC =$dataa['data']['baners_sh'][1][6];
+			if(!isset($dataa['data']['baners_sh'][1][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 2
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh2_del']],]]));
+			
+			} if(isset($dataa['data']['baners_sh'][2])){
+			
+			$TTTT =$dataa['data']['baners_sh'][2][0];
+			$BNN =$dataa['data']['baners_sh'][2][1];
+			$BLL =$dataa['data']['baners_sh'][2][2];
+			$DDD=$dataa['data']['baners_sh'][2][3];
+			$TTT=$dataa['data']['baners_sh'][2][4];
+			$SSS=$dataa['data']['baners_sh'][2][5];
+			$CCC =$dataa['data']['baners_sh'][2][6];
+			if(!isset($dataa['data']['baners_sh'][2][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 3
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh3_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_sh'][3])){
+			
+			$TTTT =$dataa['data']['baners_sh'][3][0];
+			$BNN =$dataa['data']['baners_sh'][3][1];
+			$BLL =$dataa['data']['baners_sh'][3][2];
+			$DDD=$dataa['data']['baners_sh'][3][3];
+			$TTT=$dataa['data']['baners_sh'][3][4];
+			$SSS=$dataa['data']['baners_sh'][3][5];
+			$CCC =$dataa['data']['baners_sh'][3][6];
+			if(!isset($dataa['data']['baners_sh'][3][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 4
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh4_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_sh'][4])){
+			
+			$TTTT =$dataa['data']['baners_sh'][4][0];
+			$BNN =$dataa['data']['baners_sh'][4][1];
+			$BLL =$dataa['data']['baners_sh'][4][2];
+			$DDD=$dataa['data']['baners_sh'][4][3];
+			$TTT=$dataa['data']['baners_sh'][4][4];
+			$SSS=$dataa['data']['baners_sh'][4][5];
+			$CCC =$dataa['data']['baners_sh'][4][6];
+			if(!isset($dataa['data']['baners_sh'][4][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 5
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh5_del']],]])  );
+			
+			
+		
+		                                          sleep(0.7);
+		                                          $t3t4="☝️☝️☝️☝️☝️☝️☝️☝️\n\n لیست بنر های ربات ";
+		                                          sm1k($chatid, $t3t4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏩ بازگشت ",'callback_data'=>'start']],]]) );
+		
+										
+										}
+										
+						break;
+		case 'baners_ab1_del':
+		                                      $dataa['data']['banerm_a1_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][0]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 1 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;
+		case 'baners_ab2_del':
+		                                 $dataa['data']['banerm_a2_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][1]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 2 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+		 		                                 	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+				                                          
+		
+										
+										
+						break;
+		case 'baners_ab3_del':
+		                                 $dataa['data']['banerm_a3_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][2]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 3 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;
+		case 'baners_ab4_del':
+		                                 $dataa['data']['banerm_a4_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][3]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 4 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;
+		case 'baners_ab5_del':
+		                                 $dataa['data']['banerm_a5_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][4]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 5 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;
+		case 'baners_sh1_del':
+		                                 $dataa['data']['banerm_s1_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][0]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 1 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;
+		case 'baners_sh2_del':
+		                                 $dataa['data']['banerm_s2_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][1]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 2 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;
+		case 'baners_sh3_del':
+		                                 $dataa['data']['banerm_s3_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][2]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 3 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;
+		case 'baners_sh4_del':
+		                                 $dataa['data']['banerm_s4_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][3]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 4 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										
+										
+						break;              
+		case 'baners_sh5_del':
+		                                 $dataa['data']['banerm_s5_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][4]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 5 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+		
+		
+										
+										
+						break;
+		case 'reset_yes_1':
+											sendAction($chatid, "typing");
+		                                          $tt4="⚠️ آیا مطمعن هستید ؟ \n\n ➖➖➖➖➖➖➖";
+				                                          Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بله",'callback_data'=>'reset_yes_2'],['text'=>"نه ریست نکن",'callback_data'=>'start']],]]));
+		
+										
+										
+						break;
+		case 'reset_yes_2':
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][0]);
+		                                          unset($dataa['data']['baners_sh'][1]);
+		                                          unset($dataa['data']['baners_sh'][2]);
+		                                          unset($dataa['data']['baners_sh'][3]);
+		                                          unset($dataa['data']['baners_sh'][4]);
+		                                          unset($dataa['data']['baners_ab'][0]);
+		                                          unset($dataa['data']['baners_ab'][1]);
+		                                          unset($dataa['data']['baners_ab'][2]);
+		                                          unset($dataa['data']['baners_ab'][3]);
+		                                          unset($dataa['data']['baners_ab'][4]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          $dataa['data']['banerm_a1_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a2_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a3_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a4_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a5_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s1_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s2_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s3_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s4_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s5_lock']="افزودن ➕";
+                                                  $dataa['data']['baners_a1_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a2_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a3_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a4_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a5_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s1_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s2_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s3_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s4_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s5_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['admin_lock_set_admin']="خیر ❌";
+                                                  $dataa['data']['admin_lock_del_admin']="خیر ❌";
+                                                  $dataa['data']['admin_lock_see_admin']="خیر ❌";
+                                                  $dataa['data']['admin_lock_stin_admin']="بله ✅";
+                                                  $dataa['data']['admin_lock_add_baner']="بله ✅";
+                                                  $dataa['data']['admin_lock_del_baner']="خیر ❌";
+                                                  $dataa['data']['admin_lock_see_baner']="بله ✅";
+                                                  $dataa['data']['admin_lock_reset_bot']="خیر ❌";
+                                                  $dataa['data']['admin_lock_setting_panel']="خیر ❌";
+                                                  $dataa['data']['admin_lock_see_panel']="بله ✅";
+                                                  $dataa['data']['admin_lock_tab_panel']="خیر ❌";
+                                                  $dataa['data']['send_repit']="خاموش ❌";
+                                                  $dataa['data']['send_pv']="خاموش ❌";
+                                                  $dataa['data']['send_gp']="خاموش ❌";
+                                                  $dataa['data']['send_bs']="خاموش ❌";
+                                                  $dataa['data']['send_ba']="خاموش ❌";
+                                                  $dataa['data']['state']="روشن ✅";
+                                                  file_put_contents("data.json",json_encode($dataa));
+                                                  file_put_contents("com.txt","");
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="🛑 ربات باموفقیت ریست شد !\n\n♦️ تمامی بنر ها\n♦️تنظیمات\n\n🛑 ریست شدند 👇";
+		                                          Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]));
+		
+		
+										
+										
+						break;
+		case 'amaar':
+											sendAction($chatid, "typing");
+		                                          if(!isset($dataa['data']['userz'])){
+			                                          $userz_c=0;
+			                                          }else{
+				                                          $userz_c=count($userz);
+				                                          }
+		                                          if(!isset($dataa['data']['gapz'])){
+			                                          $gapz_c=0;
+			                                          }else{
+				                                          $gapz_c=count($gapz);
+				                                          }
+		                                          if(!isset($dataa['data']['admin'])){
+			                                          $admin_c=0;
+			                                          }else{
+				                                          $admin_c=count($admins);
+				                                          }
+		                                          if(!isset($dataa['data']['baners_sh'])){
+			                                          $baners_sh_c=0;
+			                                          }else{
+				                                          $baners_sh_c=count($baners_sh);
+				                                          }
+		                                          if(!isset($dataa['data']['baners_ab'])){
+			                                          $baners_ab_c=0;
+			                                          }else{
+				                                          $baners_ab_c=count($baners_ab);
+				                                          }
+		                                          $texxxt="🔰 آمار ربات فورچی 🔰\n\n🔹 تعداد ادمین ها : $admin_c\n🔹 تعداد گپ ها : $gapz_c\n🔹 تعداد کاربران : $userz_c\n🔹 تعداد بنرشیشه ای : $baners_sh_c\n🔹 تعداد بنرعادی : $baners_ab_c\n\n➖➖➖➖➖➖➖➖➖➖";
+		                                          Editk($chatid,$texxxt,$messageid,$k_amar);
+		
+										
+										
+						break;
+		case 'list_userz':
+											sendAction($chatid, "typing");
+			                                          $Tttth="👇🏻 لیست کاربران ربات 👇🏻\n\n";
+			                                          $Cah=0;
+		                                          foreach($dataa['data']['userz'] as $k => $u){
+			                                          $Tttth.="👤U $Cah ➣ <a href='tg://user?id=$k'>$u</a> \n";
+			                                          $Cah++;
+			                                          }
+										           $Tttth.="\n\n ➖➖➖➖➖➖➖➖";
+		                                          Editk($chatid,$Tttth,$messageid,$k_amar);
+										
+						break;
+		case 'list_gapz':
+											sendAction($chatid, "typing");
+			                                          $Tttth="👇🏻 لیست گروه های ربات 👇🏻\n\n";
+			                                          $Cah=0;
+		                                          foreach($dataa['data']['gapz'] as $k => $u){
+			                                          $Tttth.="👥G $Cah ➣ <a href='tg://user?id=$k'>$u</a> \n";
+			                                          $Cah++;
+			                                          }
+		                                          $Tttth.="\n\n ➖➖➖➖➖➖➖➖";
+		                                          Editk($chatid,$Tttth,$messageid,$k_amar);
+		
+										
+										
+						break;
+		case 'f_userz':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","f_userz");
+		                                          $Ttttttt6="🏷 لطفا پیام را برای فوروارد ارسال یا فوروارد کنید \n\n➖➖➖➖➖➖";
+		                                          Editk($chatid,$Ttttttt6,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بازگشت 🔙",'callback_data'=>'c_tab']],]]));
+		
+										
+										
+						break;
+		case 'f_gapz':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","f_gapz");
+		                                          $Ttttttt6="🏷 لطفا پیام را برای فوروارد ارسال یا فوروارد کنید \n\n➖➖➖➖➖➖";
+		                                          Editk($chatid,$Ttttttt6,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بازگشت 🔙",'callback_data'=>'c_tab']],]]));
+		
+										
+										
+						break;
+		case 'f_all':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","f_all");
+		                                          $Ttttttt6="🏷 لطفا پیام را برای فوروارد ارسال یا فوروارد کنید \n\n➖➖➖➖➖➖";
+		                                          Editk($chatid,$Ttttttt6,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بازگشت 🔙",'callback_data'=>'c_tab']],]]));
+		
+										
+										
+						break;
+		case 'c_tab':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","");
+		                                          $Ttttttt6="♦️ پنل آمار ♦️ لطفا یک گذینه را انتخاب نمایید 👇👇👇👇";
+		                                          Editk($chatid,$Ttttttt6,$messageid,$k_amar);
+										
+										
+						break;
+		case 'c_admin':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","");
+		                                          $Ttttttt6="♦️ پنل ادمین ها ♦️ لطفا یک گذینه را انتخاب نمایید 👇👇👇👇";
+		                                          Editk($chatid,$Ttttttt6,$messageid,$k_admins_panel);
+										
+										
+						break;
+		case 'c_baner':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","");
+		                                          $Tttt43 = "🇩🇪 لیست بنر های عادی 🇩🇪\n\n\n🚫 این لیست برای اضافه کردن بنر است * برای حذف کردن بنر مورد نظر بر رویه کلید #لیست_بنرها کلیک کنید 🚫\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+		                                          Editk($chatid,$Tttt43,$messageid,$k_start);
+										
+										
+						break;
+		case 'data':
+											
+										
+										
+						break;
+		case 'data':
+											
+										
+										
+						break;
+		
+		}
+	}else if($tcc== 'private' and isset($dataa['data']['admin'][$fromid])){
+		
+		switch ($data) {
+		case 'admins_panel':
+											$t_ttt_1="🔰 بخش مدیریت ادمین ها 🔰\n\n";
+											$cccca=1;
+											foreach($dataa['data']['admin']as $k => $ans){
+												$t_ttt_1.= "👤 Admin $cccca ➣ <a href='tg://user?id=$k'>$k</a> \n";
+												$cccca++;
+												}
+												$t_ttt_1.= "\n\n ➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+												sendAction($chatid, "typing");
+												Editk($chatid,$t_ttt_1,$messageid,$k_admins_panel);
+										
+						break;
+		case 'settings':
+		if($admin_lock_setting_panel!=="خیر ❌"){
+											sendAction($chatid, "typing");
+											$Ttt344="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$Ttt344,$messageid,$k_setting_panel);
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_panel':
+											sendAction($chatid, "typing");
+											$ttt12="🇩🇪 لیست بنر های شیشه ای 🇩🇪\n\n\n🚫 این لیست برای اضافه کردن بنر است * برای حذف کردن بنر مورد نظر بر رویه کلید #لیست_بنرها کلیک کنید 🚫\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$ttt12,$messageid,$k_baner_sh_panel);
+										
+										
+						break;
+		case 'banera_panel':
+											sendAction($chatid, "typing");
+											$Tttt43 = "🇩🇪 لیست بنر های عادی 🇩🇪\n\n\n🚫 این لیست برای اضافه کردن بنر است * برای حذف کردن بنر مورد نظر بر رویه کلید #لیست_بنرها کلیک کنید 🚫\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$Tttt43,$messageid,$k_baner_ab_panel);
+										
+										
+						break;
+		case 'reser':
+		if($admin_lock_reset_bot!=="خیر ❌"){
+											sendAction($chatid, "typing");
+											$Tttttt445="🛑🛑🛑 آیا مطمعن هستید ؟\n\n⚠️ با این کار تمام فورچی (بنر ها و تنظیمات و ادمین ها)\n\nریست میشوند ❗️❗️❗️";
+											Editk($chatid,$Tttttt445,$messageid,$k_reset_1);
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'start':
+											sendAction($chatid, "typing");
+											$t_t_start="🌺 سلام <a href='tg://user?id=$fromid'>$re_user</a>\nبه پنل مدیریت فورچی خوش آمدید 🌺\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$t_t_start,$messageid,$k_start);
+										
+										
+						break;
+		case 'setting_admins':
+		if($admin_lock_stin_admin!=="خیر ❌"){
+											sendAction($chatid, "typing");
+											$ttdtgdtg="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$ttdtgdtg,$messageid,$k_admin_setting);
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'setting_baners':
+											sendAction($chatid, "typing");
+											$Ycufyfycy="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$Ycufyfycy,$messageid,$k_setting_baners);
+										
+										
+						break;
+		case 'state':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($state==="خاموش ❌"){
+												$dataa['data']['state']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['state']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ربات = $state\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+						break;
+		case 'send_bs':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_bs==="خاموش ❌"){
+												$dataa['data']['send_bs']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_bs']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال بنرهای شیشه ای = $send_bs\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_ba':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_ba==="خاموش ❌"){
+												$dataa['data']['send_ba']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_ba']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال بنرهای عادی = $send_ba\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_repit':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_repit==="خاموش ❌"){
+												$dataa['data']['send_repit']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_repit']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال رگباری = $send_repit\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_gp':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_gp==="خاموش ❌"){
+												$dataa['data']['send_gp']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_gp']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال گروه = $send_gp\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+		case 'send_pv':
+											sendAction($chatid, "typing");
+											sleep(0.3);
+											if($send_pv==="خاموش ❌"){
+												$dataa['data']['send_pv']="روشن ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['send_pv']="خاموش ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="⚙ بخش تنظیمات پنل فورچی 🔩\n\n🔆 برای (روشن|خاموش) کردن گزینه برای کلید های روبرویه آن ها کلیک کنید 🔆\n\n❗️ ارسال پیوی = $send_pv\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_panel);
+										
+										
+										
+						break;
+						
+						//////////===========(  Admin Settings  ) ==========////////
+						//////////===========(  Admin Settings  ) ==========////////
+						
+		case 'admin_lock_set_admin':
+											
+											sendAction($chatid, "typing");
+											if($admin_lock_set_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_set_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_set_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ افزودن ادمین = $admin_lock_set_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+												
+										
+										
+						break;
+		case 'admin_lock_del_admin':
+											sendAction($chatid, "typing");
+											if($admin_lock_del_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_del_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_del_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ حذف ادمین = $admin_lock_del_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_see_admin':
+											sendAction($chatid, "typing");
+											if($admin_lock_see_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_see_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_see_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ دیدن لیست ادمین = $admin_lock_see_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_stin_admin':
+											sendAction($chatid, "typing");
+											if($admin_lock_stin_admin==="خیر ❌"){
+												$dataa['data']['admin_lock_stin_admin']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_stin_admin']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ تنظیم دسترسی ادمین = $admin_lock_stin_admin\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_add_baner':
+											sendAction($chatid, "typing");
+											if($admin_lock_add_baner==="خیر ❌"){
+												$dataa['data']['admin_lock_add_baner']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_add_baner']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ افزودن بنر = $admin_lock_add_baner\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_del_baner':
+											sendAction($chatid, "typing");
+											if($admin_lock_del_baner==="خیر ❌"){
+												$dataa['data']['admin_lock_del_baner']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_del_baner']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ حذف ادمین = $admin_lock_del_baner\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_see_baner':
+											sendAction($chatid, "typing");
+											if($admin_lock_see_baner==="خیر ❌"){
+												$dataa['data']['admin_lock_see_baner']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_see_baner']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ دیدن لیست بنر = $admin_lock_see_baner\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_reset_bot':
+											sendAction($chatid, "typing");
+											if($admin_lock_reset_bot==="خیر ❌"){
+												$dataa['data']['admin_lock_reset_bot']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_reset_bot']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ ریست کردن ربات = $admin_lock_reset_bot\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_setting_panel':
+											sendAction($chatid, "typing");
+											if($admin_lock_setting_panel==="خیر ❌"){
+												$dataa['data']['admin_lock_setting_panel']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_setting_panel']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ تنظیم پنل = $admin_lock_setting_panel\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_see_panel':
+											sendAction($chatid, "typing");
+											if($admin_lock_see_panel==="خیر ❌"){
+												$dataa['data']['admin_lock_see_panel']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_see_panel']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🔰 به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ دیدن آمار = $admin_lock_see_panel\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+		case 'admin_lock_tab_panel':
+											sendAction($chatid, "typing");
+											if($admin_lock_tab_panel==="خیر ❌"){
+												$dataa['data']['admin_lock_tab_panel']="بله ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['admin_lock_tab_panel']="خیر ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="?? به پنل تنظیم دسترسی ادمین ها خوش آمدید 🔰\n\n⚜ برای (دسترسی|عدم دسترسی)  بر روی کلید های #بله یا #خیر کلیک کنید ⚜\n\n❗️ تبلیغ همگانی = $admin_lock_tab_panel\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_admin_setting);
+												
+										
+										
+						break;
+						
+						//////////===========(  baners Settings  ) ==========////////
+						//////////===========(  baners Settings  ) ==========////////
+						
+		case 'banerm_a1_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_a1_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a1_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 1 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a1_lock);
+													}
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'banerm_a2_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_a2_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a2_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 2 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a2_lock);
+													}
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'banerm_a3_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_a3_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a3_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 3 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a3_lock);
+													}
+										
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'banerm_a4_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_a4_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a4_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 4 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a4_lock);
+													}
+										
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'banerm_a5_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_a5_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_a5_lock");
+												$ttttt="➖ شما در حال ثبت بنر عادی 5 میباشید❗️\n\n➖ لطفا بنر را ارسال یا فوروارد کنید 👇🏻👇🏻👇🏻";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_a5_lock);
+													}
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'banerm_s1_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_s1_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s1_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 1 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s1_lock);
+													}
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'banerm_s2_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_s2_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s2_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 2 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s2_lock);
+													}
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'banerm_s3_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_s3_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s3_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 3 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s3_lock);
+													}
+										
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'banerm_s4_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_s4_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s4_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 4 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s4_lock);
+													}
+										
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'banerm_s5_lock':
+		if($admin_lock_add_baner!=="خیر ❌"){
+											if($banerm_s5_lock == "افزودن ➕"){
+												sendAction($chatid, "typing");
+												file_put_contents("com.txt","banerm_s5_lock");
+												$ttttt="❗️شما در حال ثبت کردن بنر شیشه ای 5 میباشید ❗️\n\n🛑 لطفا متن بنر را ارسال کنید \n🛑 دقت کنید کنید که فقط ((متن )) باشد و -عکس-ویدیو-... نباشد \n\n➖➖➖➖➖➖➖➖➖➖";
+												Editk($chatid,$ttttt,$messageid,$k_c_baner);
+												}else{
+													answerQ($membercall , $banerm_s5_lock);
+													}
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+						
+						//////////===========(  Sending Settings  ) ==========////////
+						//////////===========(  Sending Settings  ) ==========////////
+						
+		case 'baners_a1_lock':
+											sendAction($chatid, "typing");
+											if($baners_a1_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a1_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a1_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 1 == $baners_a1_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+						break;
+		case 'baners_a2_lock':
+											sendAction($chatid, "typing");
+											if($baners_a2_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a2_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a2_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 2 == $baners_a2_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_a3_lock':
+											sendAction($chatid, "typing");
+											if($baners_a3_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a3_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a3_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 3 == $baners_a3_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_a4_lock':
+											sendAction($chatid, "typing");
+											if($baners_a4_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a4_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a4_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 4 == $baners_a4_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_a5_lock':
+											sendAction($chatid, "typing");
+											if($baners_a5_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_a5_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_a5_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنر عادی 5 == $baners_a5_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s1_lock':
+											sendAction($chatid, "typing");
+											if($baners_s1_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s1_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s1_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای1 == $baners_s1_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s2_lock':
+											sendAction($chatid, "typing");
+											if($baners_s2_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s2_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s2_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای2 == $baners_s2_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s3_lock':
+											sendAction($chatid, "typing");
+											if($baners_s3_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s3_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s3_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای3 == $baners_s3_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s4_lock':
+											sendAction($chatid, "typing");
+											if($baners_s4_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s4_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s4_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای4 == $baners_s4_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+		case 'baners_s5_lock':
+											sendAction($chatid, "typing");
+											if($baners_s5_lock==="ارسال نشود ❌"){
+												$dataa['data']['baners_s5_lock']="ارسال شود ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("data.json",json_encode($dataa));
+												}else{
+													$dataa['data']['baners_s5_lock']="ارسال نشود ❌";
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("data.json",json_encode($dataa));
+													}
+													$ttttt="🇩🇪 بخش تنظیم بنر های ارسالی 🇩🇪\n\n⚠️ برای (فعال|غیرفعال) کردن ارسال بنر مورد نظر بر رویه دکمه های #ارسال_شود یا #ارسال_نشود کلیک کنید ⚠️\n\n❕ بنرشیشه ای5 == $baners_s5_lock\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+													Editk($chatid,$ttttt,$messageid,$k_setting_baners);
+										
+										
+										
+						break;
+						
+						//////////===========(  Other Settings  ) ==========////////
+						//////////===========(  Other Settings  ) ==========////////
+						
+		case 'add_admin':
+		if($admin_lock_set_admin!=="خیر ❌"){
+											sendAction($chatid, "typing");
+											file_put_contents("com.txt","add_admin");
+											$ttttt="⁉️ لطفا آیدی عددی ادمین جدید را وارد نمیاید ⁉️\n\nمثال  : 397536024\n\n➖➖➖➖➖➖➖👇";
+											Editk($chatid,$ttttt,$messageid,$k_c_admin);
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'del_admin':
+		if($admin_lock_del_admin!="خیر ❌"){
+											sendAction($chatid, "typing");
+											file_put_contents("com.txt","del_admin");
+											$ttttt="⁉️ لطفا آیدی عددی ادمین را برای #حذف کردن وارد نمیاید ⁉️\n\nمثال  : 397536024\n\n➖➖➖➖➖➖➖👇";
+											Editk($chatid,$ttttt,$messageid,$k_c_admin);
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'list_admins':
+		if($admin_lock_see_admin!=="خیر ❌"){
+											sendAction($chatid, "typing");
+											
+											$t_ttt_1="👇 لیست ادمین های فورچی 👇 \n\n";
+											$cccca=1;
+											foreach($dataa['data']['admin'] as $k => $ans){
+											$t_ttt_1.= "👤 Admin $cccca ➣ <a href='tg://user?id=$k'>$ans</a> \n\n";
+											$cccca++;
+											}
+											$t_ttt_1.= "\n\n ➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+											Editk($chatid,$t_ttt_1,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏪ بازگشت",'callback_data'=>'admins_panel']],]]));
+		
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+						//////////===========(  Other Settings  ) ==========////////
+		case 'reset_bs_panel':
+		if($admin_lock_del_baner!=="خیر ❌"){
+											sendAction($chatid, "typing");
+											$ttttt="⚠️ شما در حال ریست کردن تمام بنر های #شیشه_ای هستید ( با این کار تمام بنر های شیشه ای #حذف خواهند شد ⚠️\n\n➖ آیا مطمعن هستبد ؟؟؟ 👇🏻👇🏻";
+											Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بله ریست کن",'callback_data'=>'reset_bs_true'],['text'=>"نه نمیخوام",'callback_data'=>'baners_panel']],]]));
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'reset_ab_panel':
+		if($admin_lock_del_baner!=="خیر ❌"){
+											sendAction($chatid, "typing");
+											$ttttt="⚠️ شما در حال ریست کردن تمام بنر های #عادی هستید ( با این کار تمام بنر های عادی #حذف خواهند شد ⚠️\n\n➖ آیا مطمعن هستبد ؟؟؟ 👇🏻👇🏻";
+											Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بله ریست کن",'callback_data'=>'reset_ab_true'],['text'=>"نه نمیخوام",'callback_data'=>'banera_panel']],]]));
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'reset_bs_true':
+											
+										sendAction($chatid, "typing");
+		                                      unset($dataa['data']['baners_sh'][0]);
+		                                      unset($dataa['data']['baners_sh'][1]);
+		                                      unset($dataa['data']['baners_sh'][2]);
+		                                      unset($dataa['data']['baners_sh'][3]);
+		                                      unset($dataa['data']['baners_sh'][4]);
+		                                      $dataa['data']['banerm_s1_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s2_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s3_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s4_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_s5_lock']="افزودن ➕";
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      $ttttt="✅ با موفقیت انجام شد 👌🏼\n\n❗️بنر 1 = حذف شد !\n❗️بنر 2 = حذف شد !\n❗️بنر 3 = حذف شد !\n❗️بنر 4 = حذف شد !\n❗️بنر 5 = حذف شد !\n\n➖➖➖➖➖➖➖➖";
+		                                      Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏪ بازگشت",'callback_data'=>'baners_panel']],]]));
+		
+										
+						break;                   
+		case 'reset_ab_true':
+											
+								        sendAction($chatid, "typing");
+		                                      unset($dataa['data']['baners_ab'][0]);
+		                                      unset($dataa['data']['baners_ab'][1]);
+		                                      unset($dataa['data']['baners_ab'][2]);
+		                                      unset($dataa['data']['baners_ab'][3]);
+		                                      unset($dataa['data']['baners_ab'][4]);
+		                                      $dataa['data']['banerm_a1_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a2_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a3_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a4_lock']="افزودن ➕";
+                                              $dataa['data']['banerm_a5_lock']="افزودن ➕";
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      file_put_contents("data.json",json_encode($dataa));
+		                                      $ttttt="✅ با موفقیت انجام شد 👌🏼\n\n❗️بنر 1 = حذف شد !\n❗️بنر 2 = حذف شد !\n❗️بنر 3 = حذف شد !\n❗️بنر 4 = حذف شد !\n❗️بنر 5 = حذف شد !\n\n➖➖➖➖➖➖➖➖";
+		                                      Editk($chatid,$ttttt,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏪ بازگشت",'callback_data'=>'banera_panel']],]]));
+		
+										
+						break;
+		case 'get_blist':
+		if($admin_lock_see_baner!=="خیر ❌"){
+											if(isset($dataa['data']['baners_ab'][0])){
+			$CCC =$dataa['data']['baners_ab'][0][0];
+			$MMM=$dataa['data']['baners_ab'][0][1];
+			$DDD=$dataa['data']['baners_ab'][0][2];
+			$TTT=$dataa['data']['baners_ab'][0][3];
+			$SSS=$dataa['data']['baners_ab'][0][4];
+			if(!isset($dataa['data']['baners_ab'][0][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 1
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab1_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][1])){
+			
+			$CCC =$dataa['data']['baners_ab'][1][0];
+			$MMM=$dataa['data']['baners_ab'][1][1];
+			$DDD=$dataa['data']['baners_ab'][1][2];
+			$TTT=$dataa['data']['baners_ab'][1][3];
+			$SSS=$dataa['data']['baners_ab'][1][4];
+			if(!isset($dataa['data']['baners_ab'][1][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 2
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab2_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][2])){
+			
+			$CCC =$dataa['data']['baners_ab'][2][0];
+			$MMM=$dataa['data']['baners_ab'][2][1];
+			$DDD=$dataa['data']['baners_ab'][2][2];
+			$TTT=$dataa['data']['baners_ab'][2][3];
+			$SSS=$dataa['data']['baners_ab'][2][4];
+			if(!isset($dataa['data']['baners_ab'][2][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 3
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab3_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][3])){
+			
+			$CCC =$dataa['data']['baners_ab'][3][0];
+			$MMM=$dataa['data']['baners_ab'][3][1];
+			$DDD=$dataa['data']['baners_ab'][3][2];
+			$TTT=$dataa['data']['baners_ab'][3][3];
+			$SSS=$dataa['data']['baners_ab'][3][4];
+			if(!isset($dataa['data']['baners_ab'][3][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 4
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,$json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab4_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_ab'][4])){
+			
+			$CCC =$dataa['data']['baners_ab'][4][0];
+			$MMM=$dataa['data']['baners_ab'][4][1];
+			$DDD=$dataa['data']['baners_ab'][4][2];
+			$TTT=$dataa['data']['baners_ab'][4][3];
+			$SSS=$dataa['data']['baners_ab'][4][4];
+			if(!isset($dataa['data']['baners_ab'][4][4])){
+				$SSS=0;
+				}
+			ForwardMessage($chatid,$CCC,$MMM);
+			sleep(0.1);
+			$tt4="💠 نوع  : عادی 
+💠 توسط : $CCC
+💠 شماره : 5
+💠 تاریخ ثبت : $DDD
+💠 زمان ثبت : $TTT
+💠 تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖➖";
+			sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_ab5_del']],]])  );
+			
+			
+			
+			
+			} if(isset($dataa['data']['baners_sh'][0])){
+			$TTTT =$dataa['data']['baners_sh'][0][0];
+			$BNN =$dataa['data']['baners_sh'][0][1];
+			$BLL =$dataa['data']['baners_sh'][0][2];
+			$DDD=$dataa['data']['baners_sh'][0][3];
+			$TTT=$dataa['data']['baners_sh'][0][4];
+			$SSS=$dataa['data']['baners_sh'][0][5];
+			$CCC =$dataa['data']['baners_sh'][0][6];
+			if(!isset($dataa['data']['baners_sh'][0][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 1
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh1_del']],]])  );
+				
+			} if(isset($dataa['data']['baners_sh'][1])){
+			
+			$TTTT =$dataa['data']['baners_sh'][1][0];
+			$BNN =$dataa['data']['baners_sh'][1][1];
+			$BLL =$dataa['data']['baners_sh'][1][2];
+			$DDD=$dataa['data']['baners_sh'][1][3];
+			$TTT=$dataa['data']['baners_sh'][1][4];
+			$SSS=$dataa['data']['baners_sh'][1][5];
+			$CCC =$dataa['data']['baners_sh'][1][6];
+			if(!isset($dataa['data']['baners_sh'][1][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 2
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh2_del']],]]));
+			
+			} if(isset($dataa['data']['baners_sh'][2])){
+			
+			$TTTT =$dataa['data']['baners_sh'][2][0];
+			$BNN =$dataa['data']['baners_sh'][2][1];
+			$BLL =$dataa['data']['baners_sh'][2][2];
+			$DDD=$dataa['data']['baners_sh'][2][3];
+			$TTT=$dataa['data']['baners_sh'][2][4];
+			$SSS=$dataa['data']['baners_sh'][2][5];
+			$CCC =$dataa['data']['baners_sh'][2][6];
+			if(!isset($dataa['data']['baners_sh'][2][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 3
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh3_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_sh'][3])){
+			
+			$TTTT =$dataa['data']['baners_sh'][3][0];
+			$BNN =$dataa['data']['baners_sh'][3][1];
+			$BLL =$dataa['data']['baners_sh'][3][2];
+			$DDD=$dataa['data']['baners_sh'][3][3];
+			$TTT=$dataa['data']['baners_sh'][3][4];
+			$SSS=$dataa['data']['baners_sh'][3][5];
+			$CCC =$dataa['data']['baners_sh'][3][6];
+			if(!isset($dataa['data']['baners_sh'][3][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 4
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh4_del']],]])  );
+			
+			} if(isset($dataa['data']['baners_sh'][4])){
+			
+			$TTTT =$dataa['data']['baners_sh'][4][0];
+			$BNN =$dataa['data']['baners_sh'][4][1];
+			$BLL =$dataa['data']['baners_sh'][4][2];
+			$DDD=$dataa['data']['baners_sh'][4][3];
+			$TTT=$dataa['data']['baners_sh'][4][4];
+			$SSS=$dataa['data']['baners_sh'][4][5];
+			$CCC =$dataa['data']['baners_sh'][4][6];
+			if(!isset($dataa['data']['baners_sh'][4][4])){
+				$SSS=0;
+				}
+				bot('sendMessage',[       'chat_id'=>$chatid,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				sleep(0.1);
+				$tt4="♦️ نوع : شیشه ای
+♦️ شماره : 5
+♦️ توسط : $CCC
+♦️ تاریخ ثبت : $DDD
+♦️ زمان ثبت : $TTT
+♦️ تعداد ارسال : $SSS
+
+➖➖➖➖➖➖➖➖➖";
+				sm1k($chatid, $tt4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"حذف❌❌",'callback_data'=>'baners_sh5_del']],]])  );
+			
+			
+		
+		                                          sleep(1.4);
+		                                          $t3t4="☝️☝️☝️☝️☝️☝️☝️☝️\n\n لیست بنر های ربات ";
+		                                          sm1k($chatid, $t3t4 ,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"⏩ بازگشت ",'callback_data'=>'start']],]]) );
+		
+										}
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+						break;
+		case 'baners_ab1_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_a1_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][0]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 1 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'baners_ab2_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_a2_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][1]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 2 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_ab3_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_a3_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][2]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 3 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_ab4_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_a4_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][3]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 4 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_ab5_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_a5_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_ab'][4]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنر عادی 5 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_sh1_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_s1_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][0]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 1 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_sh2_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_s2_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][1]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 2 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_sh3_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_s3_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][2]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 3 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;
+		case 'baners_sh4_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_s4_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][3]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 4 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                              	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+										}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+						break;              
+		case 'baners_sh5_del':
+		if($admin_lock_del_baner!=="خیر ❌"){
+			                                      $dataa['data']['banerm_s5_lock']="افزودن ➕";
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][4]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="✅🛑 بنرشیشه ای 5 با موفقیت حذف شد ❕\n\n➖➖➖➖➖➖➖➖➖";
+				                                                	 		                        Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]) );
+		
+		
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'reset_yes_1':
+											sendAction($chatid, "typing");
+		                                          $tt4="⚠️ آیا مطمعن هستید ؟ \n\n ➖➖➖➖➖➖➖";
+				                                          Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بله",'callback_data'=>'reset_yes_2'],['text'=>"نه ریست نکن",'callback_data'=>'start']],]]));
+		
+										
+										
+						break;
+		case 'reset_yes_2':
+											sendAction($chatid, "typing");
+		                                          unset($dataa['data']['baners_sh'][0]);
+		                                          unset($dataa['data']['baners_sh'][1]);
+		                                          unset($dataa['data']['baners_sh'][2]);
+		                                          unset($dataa['data']['baners_sh'][3]);
+		                                          unset($dataa['data']['baners_sh'][4]);
+		                                          unset($dataa['data']['baners_ab'][0]);
+		                                          unset($dataa['data']['baners_ab'][1]);
+		                                          unset($dataa['data']['baners_ab'][2]);
+		                                          unset($dataa['data']['baners_ab'][3]);
+		                                          unset($dataa['data']['baners_ab'][4]);
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          $dataa['data']['banerm_a1_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a2_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a3_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a4_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_a5_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s1_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s2_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s3_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s4_lock']="افزودن ➕";
+                                                  $dataa['data']['banerm_s5_lock']="افزودن ➕";
+                                                  $dataa['data']['baners_a1_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a2_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a3_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a4_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_a5_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s1_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s2_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s3_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s4_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['baners_s5_lock']="ارسال نشود ❌";
+                                                  $dataa['data']['admin_lock_set_admin']="خیر ❌";
+                                                  $dataa['data']['admin_lock_del_admin']="خیر ❌";
+                                                  $dataa['data']['admin_lock_see_admin']="خیر ❌";
+                                                  $dataa['data']['admin_lock_stin_admin']="بله ✅";
+                                                  $dataa['data']['admin_lock_add_baner']="بله ✅";
+                                                  $dataa['data']['admin_lock_del_baner']="خیر ❌";
+                                                  $dataa['data']['admin_lock_see_baner']="بله ✅";
+                                                  $dataa['data']['admin_lock_reset_bot']="خیر ❌";
+                                                  $dataa['data']['admin_lock_setting_panel']="خیر ❌";
+                                                  $dataa['data']['admin_lock_see_panel']="بله ✅";
+                                                  $dataa['data']['admin_lock_tab_panel']="خیر ❌";
+                                                  $dataa['data']['send_repit']="خاموش ❌";
+                                                  $dataa['data']['send_pv']="خاموش ❌";
+                                                  $dataa['data']['send_gp']="خاموش ❌";
+                                                  $dataa['data']['send_bs']="خاموش ❌";
+                                                  $dataa['data']['send_ba']="خاموش ❌";
+                                                  $dataa['data']['state']="روشن ✅";
+                                                  file_put_contents("data.json",json_encode($dataa));
+                                                  file_put_contents("com.txt","");
+		                                          file_put_contents("data.json",json_encode($dataa));
+		                                          file_put_contents("com.txt","");
+		                                          $tt4="🛑 ربات باموفقیت ریست شد !\n\n♦️ تمامی بنر ها\n♦️تنظیمات\n\n🛑 ریست شدند 👇";
+		                                          Editk($chatid,$tt4,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"برگشت به پنل 🔙",'callback_data'=>'start']],]]));
+		
+		
+										
+										
+						break;
+		case 'amaar':
+		if($admin_lock_see_panel!=="خیر ❌"){
+											sendAction($chatid, "typing");
+		                                          if(!isset($dataa['data']['userz'])){
+			                                          $userz_c=0;
+			                                          }else{
+				                                          $userz_c=count($userz);
+				                                          }
+		                                          if(!isset($dataa['data']['gapz'])){
+			                                          $gapz_c=0;
+			                                          }else{
+				                                          $gapz_c=count($gapz);
+				                                          }
+		                                          if(!isset($dataa['data']['admin'])){
+			                                          $admin_c=0;
+			                                          }else{
+				                                          $admin_c=count($admins);
+				                                          }
+		                                          if(!isset($dataa['data']['baners_sh'])){
+			                                          $baners_sh_c=0;
+			                                          }else{
+				                                          $baners_sh_c=count($baners_sh);
+				                                          }
+		                                          if(!isset($dataa['data']['baners_ab'])){
+			                                          $baners_ab_c=0;
+			                                          }else{
+				                                          $baners_ab_c=count($baners_ab);
+				                                          }
+		                                          $texxxt="🔰 آمار ربات فورچی 🔰\n\n🔹 تعداد ادمین ها : $admin_c\n🔹 تعداد گپ ها : $gapz_c\n🔹 تعداد کاربران : $userz_c\n🔹 تعداد بنرشیشه ای : $baners_sh_c\n🔹 تعداد بنرعادی : $baners_ab_c\n\n➖➖➖➖➖➖➖➖➖➖";
+		                                          Editk($chatid,$texxxt,$messageid,$k_amar);
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'list_userz':
+											sendAction($chatid, "typing");
+			                                          $Tttth="👇🏻 لیست کاربران ربات 👇🏻\n\n";
+			                                          $Cah=0;
+		                                          foreach($dataa['data']['userz'] as $k => $u){
+			                                          $Tttth.="👤U $Cah ➣ <a href='tg://user?id=$k'>$u</a> \n";
+			                                          $Cah++;
+			                                          }
+										    $Tttth.="\n\n ➖➖➖➖➖➖➖➖";
+		                                          Editk($chatid,$Tttth,$messageid,$k_amar);
+										
+						break;
+		case 'list_gapz':
+											sendAction($chatid, "typing");
+			                                          $Tttth="👇🏻 لیست گروه های ربات 👇🏻\n\n";
+			                                          $Cah=0;
+		                                          foreach($dataa['data']['gapz'] as $k => $u){
+			                                          $Tttth.="👥G $Cah ➣ <a href='tg://user?id=$k'>$u</a> \n";
+			                                          $Cah++;
+			                                          }
+		                                          $Tttth.="\n\n ➖➖➖➖➖➖➖➖";
+		                                          Editk($chatid,$Tttth,$messageid,$k_amar);
+		
+										
+										
+						break;
+		case 'f_userz':
+		if($admin_lock_tab_panel!=="خیر ❌"){
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","f_userz");
+		                                          $Ttttttt6="🏷 لطفا پیام را برای فوروارد ارسال یا فوروارد کنید \n\n➖➖➖➖➖➖";
+		                                          Editk($chatid,$Ttttttt6,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بازگشت 🔙",'callback_data'=>'c_tab']],]]));
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'f_gapz':
+		if($admin_lock_tab_panel!=="خیر ❌"){
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","f_gapz");
+		                                          $Ttttttt6="🏷 لطفا پیام را برای فوروارد ارسال یا فوروارد کنید \n\n➖➖➖➖➖➖";
+		                                          Editk($chatid,$Ttttttt6,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بازگشت 🔙",'callback_data'=>'c_tab']],]]));
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'f_all':
+		if($admin_lock_tab_panel!=="خیر ❌"){
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","f_all");
+		                                          $Ttttttt6="🏷 لطفا پیام را برای فوروارد ارسال یا فوروارد کنید \n\n➖➖➖➖➖➖";
+		                                          Editk($chatid,$Ttttttt6,$messageid,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"بازگشت 🔙",'callback_data'=>'c_tab']],]]));
+		}else{
+			answerQ($membercall , "⚠️مدیر این دسترسی را به شما نداده است ⚠️");
+			}
+										
+										
+						break;
+		case 'c_tab':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","");
+		                                          $Ttttttt6="♦️ پنل آمار ♦️ لطفا یک گذینه را انتخاب نمایید 👇👇👇👇";
+		                                          Editk($chatid,$Ttttttt6,$messageid,$k_amar);
+										
+										
+						break;
+		case 'c_admin':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","");
+		                                          $Ttttttt6="♦️ پنل ادمین ها ♦️ لطفا یک گذینه را انتخاب نمایید 👇👇👇👇";
+		                                          Editk($chatid,$Ttttttt6,$messageid,$k_admins_panel);
+										
+										
+						break;
+		case 'c_baner':
+											sendAction($chatid, "typing");
+		                                          file_put_contents("com.txt","");
+		                                          $Tttt43 = "🇩🇪 لیست بنر های عادی 🇩🇪\n\n\n🚫 این لیست برای اضافه کردن بنر است * برای حذف کردن بنر مورد نظر بر رویه کلید #لیست_بنرها کلیک کنید 🚫\n\n➖👇🏻➖👇🏻➖👇🏻➖👇🏻➖";
+		                                          Editk($chatid,$Tttt43,$messageid,$k_start);
+										
+										
+						break;
+		case 'data':
+											
+										
+										
+						break;
+		case 'data':
+											
+										
+										
+						break;
+		
+		}
+		}
+
+
+
+if($tc== 'private' and $from_id ===$sudo or isset($dataa['data']['admin'][$from_id])){
+	switch ($com) {
+		
+		case 'add_admin':
+		sendAction($chatid, "typing");
+											if(!isset($dataa['data']['admin'][$textmassage])and isset($dataa['data']['userz'][$textmassage])){
+												file_put_contents("com.txt","");
+												$dataa['data']['admin'][$textmassage]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													$t_t_t ="✅ کاربر <a href='tg://user?id=$textmassage'>$textmassage</a>با موفقیت توسط شما ادمین شد\n\n➖ در تاریخ : $Fdate\n\n➖ در زمان   : $Ftime\n\n➖➖➖➖➖➖➖➖";
+													smk($chat_id, $t_t_t , $message_id,$k_c_admin );
+													
+												
+												}else{
+													file_put_contents("com.txt","");
+													$t_t_t ="⚠️ کاربر <a href='tg://user?id=$textmassage'>$textmassage</a>در لیست کاربران وجود ندارد تا آن را ادمین کنید یا از قبل ادمین شده است ⚠️\n\n➖➖➖➖➖➖➖➖";
+													smk($chat_id, $t_t_t , $message_id,$k_c_admin );
+													}
+										
+										
+						break;
+		case 'del_admin':
+		sendAction($chatid, "typing");
+											if(isset($dataa['data']['admin'][$textmassage])and isset($dataa['data']['userz'][$textmassage])){
+												file_put_contents("com.txt","");
+												unset($dataa['data']['admin'][$textmassage]);
+												file_put_contents("data.json",json_encode($dataa));
+													$t_t_t ="✅ کاربر <a href='tg://user?id=$textmassage'>$textmassage</a>از ادمینی عـــــزل شد ✅\n\n➖➖➖➖➖➖➖➖";
+													smk($chat_id, $t_t_t , $message_id,$k_c_admin );
+													
+												
+												}else{
+													file_put_contents("com.txt","");
+													$t_t_t ="⚠️ کاربر <a href='tg://user?id=$textmassage'>$textmassage</a>در لیست ادمین ها وجود ندارد تا ان را عـــــزل کنید ⚠️\n\n➖➖➖➖➖➖➖➖➖";
+													smk($chat_id, $t_t_t , $message_id,$k_c_admin );
+													
+													}
+										
+										
+						break;
+		case 'f_userz':
+		  		                                 sendAction($chatid, "typing");
+		 		                                 file_put_contents("com.txt","");
+											    $all_memberr = fopen( "user.txt", 'r');
+	                                            while( !feof( $all_memberr)) {
+ 		                                 	$userr = fgets( $all_memberr);
+       		                                   ForwardMessage($userr,$chat_id,$message_id);
+		 		                                 }
+										smk($chat_id, "با موفقیت فوروارد شد" , $messageid,$k_start );
+										
+						break;
+		case 'f_gapz':
+											  		                  sendAction($chatid, "typing");               
+		 		                                 file_put_contents("com.txt","");
+											    $all_memberr = fopen( "gap.txt", 'r');
+	                                            while( !feof( $all_memberr)) {
+ 		                                 	$userr = fgets( $all_memberr);
+       		                                   ForwardMessage($userr,$chat_id,$message_id);
+		 		                                 }
+										smk($chat_id, "با موفقیت فوروارد شد" , $messageid,$k_start );
+										
+						break;
+		case 'f_all':
+											sendAction($chatid, "typing");
+		 		                                 file_put_contents("com.txt","");
+											    $all_memberr = fopen( "user.txt", 'r');
+	                                            while( !feof( $all_memberr)) {
+ 		                                 	$userr = fgets( $all_memberr);
+       		                                   ForwardMessage($userr,$chat_id,$message_id);
+		 		                                 }
+										$Adddddd = fopen( "gap.txt", 'r');
+	                                            while( !feof( $Adddddd)) {
+ 		                                 	$usssss = fgets( $Adddddd);
+       		                                   ForwardMessage($usssss,$chat_id,$message_id);
+		 		                                 }
+										smk($chat_id, "با موفقیت فوروارد شد" , $messageid,$k_start );
+						break;
+						
+						/////////=========================/////////=========================/////////=========================
+						/////////=========================/////////=========================/////////=========================
+						
+		case 'banerm_a1_lock':
+		 		                                 	sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_ab'][0])){
+												          $dataa['data']['baners_ab'][0][0]=$chat_id;
+			 		                                 	$dataa['data']['baners_ab'][0][1]=$message_id;
+			 		                                 	$dataa['data']['baners_ab'][0][2]=$Fdate;
+			 		                                 	$dataa['data']['baners_ab'][0][3]=$Ftime;
+			 		                                 	$dataa['data']['baners_ab'][0][4]=0;
+												          $dataa['data']['banerm_a1_lock']="ثبت شده ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("com.txt","");
+											smk($chat_id, "✅ بنر عادی 1 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $messageid,$k_c_baner );
+												
+												
+												
+												}else{
+													file_put_contents("com.txt","");
+											smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+						break;
+		case 'banerm_a2_lock':
+												sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_ab'][1])){
+												          $dataa['data']['baners_ab'][1][0]=$chat_id;
+			 		                                 	$dataa['data']['baners_ab'][1][1]=$message_id;
+			 		                                 	$dataa['data']['baners_ab'][1][2]=$Fdate;
+			 		                                 	$dataa['data']['baners_ab'][1][3]=$Ftime;
+			 		                                 	$dataa['data']['baners_ab'][1][4]=0;
+												          $dataa['data']['banerm_a2_lock']="ثبت شده ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("com.txt","");
+											smk($chat_id, "✅ بنر عادی 2 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $messageid,$k_c_baner );
+												
+												
+												
+												}else{
+													file_put_contents("com.txt","");
+											smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+										
+										
+						break;
+		case 'banerm_a3_lock':
+												sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_ab'][2])){
+												          $dataa['data']['baners_ab'][2][0]=$chat_id;
+			 		                                 	$dataa['data']['baners_ab'][2][1]=$message_id;
+			 		                                 	$dataa['data']['baners_ab'][2][2]=$Fdate;
+			 		                                 	$dataa['data']['baners_ab'][2][3]=$Ftime;
+			 		                                 	$dataa['data']['baners_ab'][2][4]=0;
+												          $dataa['data']['banerm_a3_lock']="ثبت شده ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("com.txt","");
+											smk($chat_id, "✅ بنر عادی 3 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $messageid,$k_c_baner );
+												
+												
+												
+												}else{
+													file_put_contents("com.txt","");
+											smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+										
+										
+						break;
+		case 'banerm_a4_lock':
+												sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_ab'][3])){
+												          $dataa['data']['baners_ab'][3][0]=$chat_id;
+			 		                                 	$dataa['data']['baners_ab'][3][1]=$message_id;
+			 		                                 	$dataa['data']['baners_ab'][3][2]=$Fdate;
+			 		                                 	$dataa['data']['baners_ab'][3][3]=$Ftime;
+			 		                                 	$dataa['data']['baners_ab'][3][4]=0;
+												          $dataa['data']['banerm_a4_lock']="ثبت شده ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("com.txt","");
+											smk($chat_id, "✅ بنر عادی 4 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $messageid,$k_c_baner );
+												
+												
+												
+												}else{
+													file_put_contents("com.txt","");
+											smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+										
+										
+						break;
+		case 'banerm_a5_lock':
+											
+											sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_ab'][4])){
+												          $dataa['data']['baners_ab'][4][0]=$chat_id;
+			 		                                 	$dataa['data']['baners_ab'][4][1]=$message_id;
+			 		                                 	$dataa['data']['baners_ab'][4][2]=$Fdate;
+			 		                                 	$dataa['data']['baners_ab'][4][3]=$Ftime;
+			 		                                 	$dataa['data']['baners_ab'][4][4]=0;
+												          $dataa['data']['banerm_a5_lock']="ثبت شده ✅";
+												file_put_contents("data.json",json_encode($dataa));
+												file_put_contents("com.txt","");
+											smk($chat_id, "✅ بنر عادی 5 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $messageid,$k_c_baner );
+												
+												
+												
+												}else{
+													file_put_contents("com.txt","");
+											smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+										
+										
+						break;
+		case 'banerm_s1_lock':
+											sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_sh'][0])){
+												if($update->message->text){
+													$dataa['data']['baners_sh'][0][0]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s1_lock_BN");
+													smk($chat_id, "♻️ حال + نام دکمه + بنر شیشه ای 1 را ارسال نمایید ♻️\n\n🌀 این متن بر رویه دکمه شیشه ای بنر قرار میگیرد 🌀\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh1_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #متن بنر شیشه ای 1 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh1_del']],]])  );
+														}
+												
+												}else{
+													file_put_contents("com.txt","");
+											        smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+											
+											
+										
+										
+						break;
+		case 'banerm_s2_lock':
+											sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_sh'][1])){
+												if($update->message->text){
+													$dataa['data']['baners_sh'][1][0]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s2_lock_BN");
+													smk($chat_id, "♻️ حال + نام دکمه + بنر شیشه ای 2 را ارسال نمایید ♻️\n\n🌀 این متن بر رویه دکمه شیشه ای بنر قرار میگیرد 🌀\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh2_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #متن بنر شیشه ای 2 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh2_del']],]])  );
+														}
+												
+												}else{
+													file_put_contents("com.txt","");
+											        smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+						break;
+		case 'banerm_s3_lock':
+											sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_sh'][2])){
+												if($update->message->text){
+													$dataa['data']['baners_sh'][2][0]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s4_lock_BN");
+													smk($chat_id, "♻️ حال + نام دکمه + بنر شیشه ای 3 را ارسال نمایید ♻️\n\n🌀 این متن بر رویه دکمه شیشه ای بنر قرار میگیرد 🌀\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh4_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #متن بنر شیشه ای 3 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh4_del']],]])  );
+														}
+												
+												}else{
+													file_put_contents("com.txt","");
+											        smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+						break;
+		case 'banerm_s4_lock':
+											sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_sh'][3])){
+												if($update->message->text){
+													$dataa['data']['baners_sh'][3][0]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s4_lock_BN");
+													smk($chat_id, "♻️ حال + نام دکمه + بنر شیشه ای 4 را ارسال نمایید ♻️\n\n🌀 این متن بر رویه دکمه شیشه ای بنر قرار میگیرد 🌀\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh4_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #متن بنر شیشه ای 4 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh4_del']],]])  );
+														}
+												
+												}else{
+													file_put_contents("com.txt","");
+											        smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+						break;
+		case 'banerm_s5_lock':
+											sendAction($chatid, "typing");
+											if(!isset($dataa['data']['baners_sh'][4])){
+												if($update->message->text){
+													$dataa['data']['baners_sh'][4][0]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s5_lock_BN");
+													smk($chat_id, "♻️ حال + نام دکمه + بنر شیشه ای 5 را ارسال نمایید ♻️\n\n🌀 این متن بر رویه دکمه شیشه ای بنر قرار میگیرد 🌀\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh5_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #متن بنر شیشه ای 5 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh5_del']],]])  );
+														}
+												
+												}else{
+													file_put_contents("com.txt","");
+											        smk($chat_id, "🛑 این بنر از قبل ست شده است 🛑" , $messageid,$k_c_baner );
+													}
+										
+										
+						break;
+						
+						
+						
+		case 'banerm_s1_lock_BN':
+											if($update->message->text){
+													$dataa['data']['baners_sh'][0][1]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s1_lock_BL");
+													smk($chat_id, "🔰Ⓜ️ حالا + لینک دکمه + بنر شیشه ای 1 را ارسال نمایید Ⓜ️🔰\n\n\n⁉️ این لینک میتواند (لینک گروه /کانال/سایت/...) باشد تا وقتی کاربر برو رویه دکمه بنر کلیک میکنید وارد ان شود ⁉️\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh1_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #نام_دکمه بنر شیشه ای 1 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh1_del']],]])  );
+														}
+										
+										
+						break;
+		case 'banerm_s2_lock_BN':
+											if($update->message->text){
+													$dataa['data']['baners_sh'][1][1]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s2_lock_BL");
+													smk($chat_id, "🔰Ⓜ️ حالا + لینک دکمه + بنر شیشه ای 2 را ارسال نمایید Ⓜ️🔰\n\n\n⁉️ این لینک میتواند (لینک گروه /کانال/سایت/...) باشد تا وقتی کاربر برو رویه دکمه بنر کلیک میکنید وارد ان شود ⁉️\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh2_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #نام_دکمه بنر شیشه ای 2 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh2_del']],]])  );
+														}
+										
+										
+						break;
+		case 'banerm_s3_lock_BN':
+											if($update->message->text){
+													$dataa['data']['baners_sh'][2][1]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s3_lock_BL");
+													smk($chat_id, "🔰Ⓜ️ حالا + لینک دکمه + بنر شیشه ای 4 را ارسال نمایید Ⓜ️🔰\n\n\n⁉️ این لینک میتواند (لینک گروه /کانال/سایت/...) باشد تا وقتی کاربر برو رویه دکمه بنر کلیک میکنید وارد ان شود ⁉️\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh3_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #نام_دکمه بنر شیشه ای 3 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh3_del']],]])  );
+														}
+										
+										
+						break;
+		case 'banerm_s4_lock_BN':
+											if($update->message->text){
+													$dataa['data']['baners_sh'][3][1]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s4_lock_BL");
+													smk($chat_id, "⚠️خطا : لطفا #نام_دکمه بنر شیشه ای 4 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh4_del']],]])  );
+													}else{
+														smk($chat_id, "te2222xt" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh4_del']],]])  );
+														}
+										
+										
+						break;
+		case 'banerm_s5_lock_BN':
+											if($update->message->text){
+													$dataa['data']['baners_sh'][4][1]=$textmassage;
+													file_put_contents("data.json",json_encode($dataa));
+													file_put_contents("com.txt","banerm_s5_lock_BL");
+													smk($chat_id, "🔰Ⓜ️ حالا + لینک دکمه + بنر شیشه ای 5 را ارسال نمایید Ⓜ️🔰\n\n\n⁉️ این لینک میتواند (لینک گروه /کانال/سایت/...) باشد تا وقتی کاربر برو رویه دکمه بنر کلیک میکنید وارد ان شود ⁉️\n\n➖➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh5_del']],]])  );
+													}else{
+														smk($chat_id, "⚠️خطا : لطفا #نام_دکمه بنر شیشه ای 5 را بصورت #متن وارد نمایید ⚠️\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh5_del']],]])  );
+														}
+										
+										
+						break;
+						
+						
+						
+						
+						
+						
+						
+		case 'banerm_s1_lock_BL':
+											if($update->message->entities[0]->type=='url'){
+												
+												$dataa['data']['baners_sh'][0][2]=$textmassage;
+												$dataa['data']['baners_sh'][0][3]=$Fdate;
+												$dataa['data']['baners_sh'][0][4]=$Ftime;
+												$dataa['data']['baners_sh'][0][5]=0;
+												$dataa['data']['baners_sh'][0][6]=$chat_id;
+												          $dataa['data']['banerm_s1_lock']="ثبت شده ✅";
+												file_put_contents("com.txt","");
+												file_put_contents("data.json",json_encode($dataa));
+												smk($chat_id, "✅ بنر شیشه ای 1 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $message_id,$k_c_baner );
+												}else{
+													smk($chat_id, "⚠️خطا لطفا #لینک بنر شیشه ای 1 را بصورت ( url ) یا ( #لینک ) وارد نمایید\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh1_del']],]])  );
+													}
+										
+										
+						break;
+		case 'banerm_s2_lock_BL':
+											
+										if($update->message->entities[0]->type=='url'){
+												
+												$dataa['data']['baners_sh'][1][2]=$textmassage;
+												$dataa['data']['baners_sh'][1][3]=$Fdate;
+												$dataa['data']['baners_sh'][1][4]=$Ftime;
+												$dataa['data']['baners_sh'][1][5]=0;
+												$dataa['data']['baners_sh'][1][6]=$chat_id;
+												          $dataa['data']['banerm_s2_lock']="ثبت شده ✅";
+												file_put_contents("com.txt","");
+												file_put_contents("data.json",json_encode($dataa));
+												smk($chat_id, "✅ بنر شیشه ای 2 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $message_id,$k_c_baner );
+												}else{
+													smk($chat_id, "⚠️خطا لطفا #لینک بنر شیشه ای 2 را بصورت ( url ) یا ( #لینک ) وارد نمایید\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh2_del']],]])  );
+													}
+										
+										
+										
+						break;
+		case 'banerm_s3_lock_BL':
+											
+										if($update->message->entities[0]->type=='url'){
+												
+												$dataa['data']['baners_sh'][2][2]=$textmassage;
+												$dataa['data']['baners_sh'][2][3]=$Fdate;
+												$dataa['data']['baners_sh'][2][4]=$Ftime;
+												$dataa['data']['baners_sh'][2][5]=0;
+												$dataa['data']['baners_sh'][2][6]=$chat_id;
+												          $dataa['data']['banerm_s3_lock']="ثبت شده ✅";
+												file_put_contents("com.txt","");
+												file_put_contents("data.json",json_encode($dataa));
+												smk($chat_id, "✅ بنر شیشه ای 3 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $message_id,$k_c_baner );
+												}else{
+													smk($chat_id, "⚠️خطا لطفا #لینک بنر شیشه ای 3 را بصورت ( url ) یا ( #لینک ) وارد نمایید\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh3_del']],]])  );
+													}
+										
+										
+										
+						break;
+		case 'banerm_s4_lock_BL':
+											
+										if($update->message->entities[0]->type=='url'){
+												
+												$dataa['data']['baners_sh'][3][2]=$textmassage;
+												$dataa['data']['baners_sh'][3][3]=$Fdate;
+												$dataa['data']['baners_sh'][3][4]=$Ftime;
+												$dataa['data']['baners_sh'][3][5]=0;
+												$dataa['data']['baners_sh'][3][6]=$chat_id;
+												          $dataa['data']['banerm_s4_lock']="ثبت شده ✅";
+												file_put_contents("com.txt","");
+												file_put_contents("data.json",json_encode($dataa));
+												smk($chat_id, "✅ بنر شیشه ای 4 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $message_id,$k_c_baner );
+												}else{
+													smk($chat_id, "⚠️خطا لطفا #لینک بنر شیشه ای 4 را بصورت ( url ) یا ( #لینک ) وارد نمایید\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh4_del']],]])  );
+													}
+										
+										
+										
+						break;
+		case 'banerm_s5_lock_BL':
+											
+										if($update->message->entities[0]->type=='url'){
+												
+												$dataa['data']['baners_sh'][4][2]=$textmassage;
+												$dataa['data']['baners_sh'][4][3]=$Fdate;
+												$dataa['data']['baners_sh'][4][4]=$Ftime;
+												$dataa['data']['baners_sh'][4][5]=0;
+												$dataa['data']['baners_sh'][4][6]=$chat_id;
+												          $dataa['data']['banerm_s5_lock']="ثبت شده ✅";
+												file_put_contents("com.txt","");
+												file_put_contents("data.json",json_encode($dataa));
+												smk($chat_id, "✅ بنر شیشه ای 5 با موفقیت ثبت شد ✅\n\n❗️تاریخ و زمان ثبت❗️\n\n❗️ $Fdate ❕ $Ftime ❗️\n\n➖➖➖➖➖➖➖➖👇" , $message_id,$k_c_baner );
+												}else{
+													smk($chat_id, "⚠️خطا لطفا #لینک بنر شیشه ای 5 را بصورت ( url ) یا ( #لینک ) وارد نمایید\n\n➖➖➖➖➖➖➖➖➖" , $message_id,json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"منصرف میشم 😕",'callback_data'=>'baners_sh5_del']],]])  );
+													}
+										
+										
+										
+						break;
+		case 'data':
+											
+										
+										
+						break;
+		case 'data':
+											
+										
+										
+						break;
+		
+		
+		}
+	
+	}
+
+
+
+
+
+
+               
+
+
+
+
+if($chat_id!==$sudo and !isset($dataa['data']['admin'][$chat_id])){
+	if($state=="روشن ✅" ){
+		if($send_gp=="روشن ✅" ){
+			if($tc =='supergroup' or $tc =='group' and !isset($dataa['data']['gapz'][$chat_id])){
+				if($send_ba=="روشن ✅"){
+					if($baners_a1_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][0])){
+			               $CCC =$dataa['data']['baners_ab'][0][0];
+			               $MMM=$dataa['data']['baners_ab'][0][1];
+			               $DDD=$dataa['data']['baners_ab'][0][2];
+			               $TTT=$dataa['data']['baners_ab'][0][3];
+			               $SSS=$dataa['data']['baners_ab'][0][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][0][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a2_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][1])){
+			               $CCC =$dataa['data']['baners_ab'][1][0];
+			               $MMM=$dataa['data']['baners_ab'][1][1];
+			               $DDD=$dataa['data']['baners_ab'][1][2];
+			               $TTT=$dataa['data']['baners_ab'][1][3];
+			               $SSS=$dataa['data']['baners_ab'][1][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][1][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a3_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][2])){
+			               $CCC =$dataa['data']['baners_ab'][2][0];
+			               $MMM=$dataa['data']['baners_ab'][2][1];
+			               $DDD=$dataa['data']['baners_ab'][2][2];
+			               $TTT=$dataa['data']['baners_ab'][2][3];
+			               $SSS=$dataa['data']['baners_ab'][2][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][2][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a4_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][3])){
+			               $CCC =$dataa['data']['baners_ab'][3][0];
+			               $MMM=$dataa['data']['baners_ab'][3][1];
+			               $DDD=$dataa['data']['baners_ab'][3][2];
+			               $TTT=$dataa['data']['baners_ab'][3][3];
+			               $SSS=$dataa['data']['baners_ab'][3][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][3][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a5_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][4])){
+			               $CCC =$dataa['data']['baners_ab'][4][0];
+			               $MMM=$dataa['data']['baners_ab'][4][1];
+			               $DDD=$dataa['data']['baners_ab'][4][2];
+			               $TTT=$dataa['data']['baners_ab'][4][3];
+			               $SSS=$dataa['data']['baners_ab'][4][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][4][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}
+					}if($send_bs=="روشن ✅"){
+						if($baners_s1_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][0])){
+			               $TTTT =$dataa['data']['baners_sh'][0][0];
+			               $BNN =$dataa['data']['baners_sh'][0][1];
+			               $BLL =$dataa['data']['baners_sh'][0][2];
+			               $DDD=$dataa['data']['baners_sh'][0][3];
+			               $TTT=$dataa['data']['baners_sh'][0][4];
+			               $SSS=$dataa['data']['baners_sh'][0][5];
+			               $CCC =$dataa['data']['baners_sh'][0][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][0][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s2_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][1])){
+			               $TTTT =$dataa['data']['baners_sh'][1][0];
+			               $BNN =$dataa['data']['baners_sh'][1][1];
+			               $BLL =$dataa['data']['baners_sh'][1][2];
+			               $DDD=$dataa['data']['baners_sh'][1][3];
+			               $TTT=$dataa['data']['baners_sh'][1][4];
+			               $SSS=$dataa['data']['baners_sh'][1][5];
+			               $CCC =$dataa['data']['baners_sh'][1][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][1][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s3_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][2])){
+			               $TTTT =$dataa['data']['baners_sh'][2][0];
+			               $BNN =$dataa['data']['baners_sh'][2][1];
+			               $BLL =$dataa['data']['baners_sh'][2][2];
+			               $DDD=$dataa['data']['baners_sh'][2][3];
+			               $TTT=$dataa['data']['baners_sh'][2][4];
+			               $SSS=$dataa['data']['baners_sh'][2][5];
+			               $CCC =$dataa['data']['baners_sh'][2][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][2][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s4_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][3])){
+			               $TTTT =$dataa['data']['baners_sh'][3][0];
+			               $BNN =$dataa['data']['baners_sh'][3][1];
+			               $BLL =$dataa['data']['baners_sh'][3][2];
+			               $DDD=$dataa['data']['baners_sh'][3][3];
+			               $TTT=$dataa['data']['baners_sh'][3][4];
+			               $SSS=$dataa['data']['baners_sh'][3][5];
+			               $CCC =$dataa['data']['baners_sh'][3][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][3][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s5_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][4])){
+			               $TTTT =$dataa['data']['baners_sh'][4][0];
+			               $BNN =$dataa['data']['baners_sh'][4][1];
+			               $BLL =$dataa['data']['baners_sh'][4][2];
+			               $DDD=$dataa['data']['baners_sh'][4][3];
+			               $TTT=$dataa['data']['baners_sh'][4][4];
+			               $SSS=$dataa['data']['baners_sh'][4][5];
+			               $CCC =$dataa['data']['baners_sh'][4][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][4][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}
+					}
+				}
+			}
+		}
+	}
+if($chat_id!==$sudo and !isset($dataa['data']['admin'][$chat_id])){
+	if($state=="روشن ✅" ){
+		if($send_pv=="روشن ✅"){
+			if($tc== 'private' and !isset($dataa['data']['userz'][$chat_id])){
+				if($send_ba=="روشن ✅"){
+					if($baners_a1_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][0])){
+			               $CCC =$dataa['data']['baners_ab'][0][0];
+			               $MMM=$dataa['data']['baners_ab'][0][1];
+			               $DDD=$dataa['data']['baners_ab'][0][2];
+			               $TTT=$dataa['data']['baners_ab'][0][3];
+			               $SSS=$dataa['data']['baners_ab'][0][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][0][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a2_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][1])){
+			               $CCC =$dataa['data']['baners_ab'][1][0];
+			               $MMM=$dataa['data']['baners_ab'][1][1];
+			               $DDD=$dataa['data']['baners_ab'][1][2];
+			               $TTT=$dataa['data']['baners_ab'][1][3];
+			               $SSS=$dataa['data']['baners_ab'][1][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][1][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a3_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][2])){
+			               $CCC =$dataa['data']['baners_ab'][2][0];
+			               $MMM=$dataa['data']['baners_ab'][2][1];
+			               $DDD=$dataa['data']['baners_ab'][2][2];
+			               $TTT=$dataa['data']['baners_ab'][2][3];
+			               $SSS=$dataa['data']['baners_ab'][2][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][2][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a4_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][3])){
+			               $CCC =$dataa['data']['baners_ab'][3][0];
+			               $MMM=$dataa['data']['baners_ab'][3][1];
+			               $DDD=$dataa['data']['baners_ab'][3][2];
+			               $TTT=$dataa['data']['baners_ab'][3][3];
+			               $SSS=$dataa['data']['baners_ab'][3][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][3][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a5_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][4])){
+			               $CCC =$dataa['data']['baners_ab'][4][0];
+			               $MMM=$dataa['data']['baners_ab'][4][1];
+			               $DDD=$dataa['data']['baners_ab'][4][2];
+			               $TTT=$dataa['data']['baners_ab'][4][3];
+			               $SSS=$dataa['data']['baners_ab'][4][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][4][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}
+					}if($send_bs=="روشن ✅"){
+						if($baners_s1_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][0])){
+			               $TTTT =$dataa['data']['baners_sh'][0][0];
+			               $BNN =$dataa['data']['baners_sh'][0][1];
+			               $BLL =$dataa['data']['baners_sh'][0][2];
+			               $DDD=$dataa['data']['baners_sh'][0][3];
+			               $TTT=$dataa['data']['baners_sh'][0][4];
+			               $SSS=$dataa['data']['baners_sh'][0][5];
+			               $CCC =$dataa['data']['baners_sh'][0][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][0][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s2_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][1])){
+			               $TTTT =$dataa['data']['baners_sh'][1][0];
+			               $BNN =$dataa['data']['baners_sh'][1][1];
+			               $BLL =$dataa['data']['baners_sh'][1][2];
+			               $DDD=$dataa['data']['baners_sh'][1][3];
+			               $TTT=$dataa['data']['baners_sh'][1][4];
+			               $SSS=$dataa['data']['baners_sh'][1][5];
+			               $CCC =$dataa['data']['baners_sh'][1][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][1][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s3_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][2])){
+			               $TTTT =$dataa['data']['baners_sh'][2][0];
+			               $BNN =$dataa['data']['baners_sh'][2][1];
+			               $BLL =$dataa['data']['baners_sh'][2][2];
+			               $DDD=$dataa['data']['baners_sh'][2][3];
+			               $TTT=$dataa['data']['baners_sh'][2][4];
+			               $SSS=$dataa['data']['baners_sh'][2][5];
+			               $CCC =$dataa['data']['baners_sh'][2][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][2][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s4_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][3])){
+			               $TTTT =$dataa['data']['baners_sh'][3][0];
+			               $BNN =$dataa['data']['baners_sh'][3][1];
+			               $BLL =$dataa['data']['baners_sh'][3][2];
+			               $DDD=$dataa['data']['baners_sh'][3][3];
+			               $TTT=$dataa['data']['baners_sh'][3][4];
+			               $SSS=$dataa['data']['baners_sh'][3][5];
+			               $CCC =$dataa['data']['baners_sh'][3][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][3][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s5_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][4])){
+			               $TTTT =$dataa['data']['baners_sh'][4][0];
+			               $BNN =$dataa['data']['baners_sh'][4][1];
+			               $BLL =$dataa['data']['baners_sh'][4][2];
+			               $DDD=$dataa['data']['baners_sh'][4][3];
+			               $TTT=$dataa['data']['baners_sh'][4][4];
+			               $SSS=$dataa['data']['baners_sh'][4][5];
+			               $CCC =$dataa['data']['baners_sh'][4][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][4][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}
+					}
+				}
+			}
+		}
+	}
+	if($update->message){
+if($chat_id!==$sudo and !isset($dataa['data']['admin'][$chat_id])){
+	if($state=="روشن ✅" ){
+		if($send_repit=="روشن ✅" ){
+			
+				if($send_ba=="روشن ✅"){
+					if($baners_a1_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][0])){
+			               $CCC =$dataa['data']['baners_ab'][0][0];
+			               $MMM=$dataa['data']['baners_ab'][0][1];
+			               $DDD=$dataa['data']['baners_ab'][0][2];
+			               $TTT=$dataa['data']['baners_ab'][0][3];
+			               $SSS=$dataa['data']['baners_ab'][0][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][0][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a2_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][1])){
+			               $CCC =$dataa['data']['baners_ab'][1][0];
+			               $MMM=$dataa['data']['baners_ab'][1][1];
+			               $DDD=$dataa['data']['baners_ab'][1][2];
+			               $TTT=$dataa['data']['baners_ab'][1][3];
+			               $SSS=$dataa['data']['baners_ab'][1][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][1][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a3_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][2])){
+			               $CCC =$dataa['data']['baners_ab'][2][0];
+			               $MMM=$dataa['data']['baners_ab'][2][1];
+			               $DDD=$dataa['data']['baners_ab'][2][2];
+			               $TTT=$dataa['data']['baners_ab'][2][3];
+			               $SSS=$dataa['data']['baners_ab'][2][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][2][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a4_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][3])){
+			               $CCC =$dataa['data']['baners_ab'][3][0];
+			               $MMM=$dataa['data']['baners_ab'][3][1];
+			               $DDD=$dataa['data']['baners_ab'][3][2];
+			               $TTT=$dataa['data']['baners_ab'][3][3];
+			               $SSS=$dataa['data']['baners_ab'][3][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][3][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}if($baners_a5_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_ab'][4])){
+			               $CCC =$dataa['data']['baners_ab'][4][0];
+			               $MMM=$dataa['data']['baners_ab'][4][1];
+			               $DDD=$dataa['data']['baners_ab'][4][2];
+			               $TTT=$dataa['data']['baners_ab'][4][3];
+			               $SSS=$dataa['data']['baners_ab'][4][4];
+			               
+			               ForwardMessage($chat_id,$CCC,$MMM);
+			                              $dataa['data']['baners_ab'][4][4]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               }
+						}
+					}if($send_bs=="روشن ✅"){
+						if($baners_s1_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][0])){
+			               $TTTT =$dataa['data']['baners_sh'][0][0];
+			               $BNN =$dataa['data']['baners_sh'][0][1];
+			               $BLL =$dataa['data']['baners_sh'][0][2];
+			               $DDD=$dataa['data']['baners_sh'][0][3];
+			               $TTT=$dataa['data']['baners_sh'][0][4];
+			               $SSS=$dataa['data']['baners_sh'][0][5];
+			               $CCC =$dataa['data']['baners_sh'][0][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][0][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s2_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][1])){
+			               $TTTT =$dataa['data']['baners_sh'][1][0];
+			               $BNN =$dataa['data']['baners_sh'][1][1];
+			               $BLL =$dataa['data']['baners_sh'][1][2];
+			               $DDD=$dataa['data']['baners_sh'][1][3];
+			               $TTT=$dataa['data']['baners_sh'][1][4];
+			               $SSS=$dataa['data']['baners_sh'][1][5];
+			               $CCC =$dataa['data']['baners_sh'][1][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][1][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s3_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][2])){
+			               $TTTT =$dataa['data']['baners_sh'][2][0];
+			               $BNN =$dataa['data']['baners_sh'][2][1];
+			               $BLL =$dataa['data']['baners_sh'][2][2];
+			               $DDD=$dataa['data']['baners_sh'][2][3];
+			               $TTT=$dataa['data']['baners_sh'][2][4];
+			               $SSS=$dataa['data']['baners_sh'][2][5];
+			               $CCC =$dataa['data']['baners_sh'][2][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][2][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s4_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][3])){
+			               $TTTT =$dataa['data']['baners_sh'][3][0];
+			               $BNN =$dataa['data']['baners_sh'][3][1];
+			               $BLL =$dataa['data']['baners_sh'][3][2];
+			               $DDD=$dataa['data']['baners_sh'][3][3];
+			               $TTT=$dataa['data']['baners_sh'][3][4];
+			               $SSS=$dataa['data']['baners_sh'][3][5];
+			               $CCC =$dataa['data']['baners_sh'][3][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][3][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}if($baners_s5_lock=="ارسال شود ✅"){
+						if(isset($dataa['data']['baners_sh'][4])){
+			               $TTTT =$dataa['data']['baners_sh'][4][0];
+			               $BNN =$dataa['data']['baners_sh'][4][1];
+			               $BLL =$dataa['data']['baners_sh'][4][2];
+			               $DDD=$dataa['data']['baners_sh'][4][3];
+			               $TTT=$dataa['data']['baners_sh'][4][4];
+			               $SSS=$dataa['data']['baners_sh'][4][5];
+			               $CCC =$dataa['data']['baners_sh'][4][6];
+			               
+				               bot('sendMessage',[       'chat_id'=>$chat_id,   'text'=>$TTTT,  'reply_markup'=> json_encode(['resize_keyboard'=>true,'inline_keyboard'=>[[['text'=>"$BNN",'url'=>"$BLL"]],]]),       'parse_mode'=>"html"  ]);
+				               $dataa['data']['baners_sh'][4][5]++;
+				               file_put_contents("data.json",json_encode($dataa));
+			               } 
+						}
+					}
+				}
+			}
+		}
+	}
+/*
+کانال سورس خونه ! پر از سورس هاي ربات هاي تلگرامي !
+لطفا در کانال ما عضو شويد 
+@source_home
+https://t.me/source_home
+*/
+?>
