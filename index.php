@@ -10,7 +10,7 @@ include "jdf.php";
 ob_start();
 error_reporting(0);
 date_default_timezone_set('Asia/Tehran');
-define('API_KEY','1270354321:AAFuszNAC-TLOtQF7VXBItKGrcl67tzRtfM');
+define('API_KEY','671674692:AAFSIvIz36GkuMwhzW8h5DKghQUb8eBjETU');
 $sudo = 389435672;
 function bot($method,$data){
   
